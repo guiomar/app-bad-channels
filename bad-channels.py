@@ -1,15 +1,26 @@
 import mne
 import json
 
+
+# Test version
+print(mne.__version__)
+
 # Load inputs from config.json
 with open('config.json') as config_json:
     config = json.load(config_json)
 
-# Read the file
+# Read the raw file
 data_file = str(config.pop('input_raw'))
 raw = mne.io.read_raw_fif(data_file, allow_maxshield=True)
-cross_talk_file = str(config.pop('input_cross_talk'))
-calibration_file = str(config.pop('input_calibration'))
+
+# Read the calibration files
+cross_talk_file = config.pop('input_cross_talk')
+if cross_talk_file is not None:
+    cross_talk_file = str(cross_talk_file)
+
+calibration_file = config.pop('input_calibration')
+if calibration_file is not None:
+    calibration_file = str(calibration_file)
 
 # Find bad channels
 raw_check = raw.copy()
