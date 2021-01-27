@@ -18,7 +18,8 @@ set -x
 #mkdir -p out_dir
 
 # Run the actual python code
-singularity exec docker://brainlife/mne:0.22.0 python3 bad-channels.py
+#singularity exec docker://brainlife/mne:0.22.0 python3 bad-channels.py
 
 # Test local
-# python3 ./bad-channels.py
+#python3 ./bad-channels.py
+singularity exec -e -B /network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore:/input docker://brainlife/mne:0.22.0 python3 bad-channels.py .
