@@ -1,14 +1,13 @@
 {
     "input_raw": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/data_for_test/rest1-raw.fif",
-    "input_calibration": "//network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/data_for_test/sss_config/sss_cal.dat",
-    "input_cross_talk": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/data_for_test/sss_config/ct_sparse.fif",
+    "input_calibration": "//network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/sss_cal.dat",
+    "input_cross_talk": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/ct_sparse.fif",
     "head_pos": null,
     "output_tag": "bad_channels-raw",
     "params_find_bad_channels_maxwell": {
         "limit": 7.0,
         "duration": 5.0,
         "min_count": 5,
-        "return_scores": false,
         "origin": "auto",
         "int_order": 8,
         "ext_order": 3,
@@ -21,7 +20,7 @@
         "h_freq": 40.0,
         "extended_proj": [],
         "verbose": null
-   },
+    },
     "params_save": {
         "picks": null,
         "tmin": 0,

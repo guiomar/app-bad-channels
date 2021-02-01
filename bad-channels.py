@@ -2,10 +2,13 @@
 
 import mne
 import json
-
+import warnings
 
 # Print mne version
 print(mne.__version__)
+
+# Generate a json.product to display messages on Brainlife UI
+dict_json_product = {'brainlife': []}
 
 # Load inputs from config.json
 with open('config.json') as config_json:
@@ -29,13 +32,20 @@ head_pos_file = config.pop('head_pos')
 if head_pos_file is not None:
     head_pos_file = mne.chpi.read_head_pos(str(head_pos_file))
 
-# Find bad channels
-# check if line noise or cHPI signals are removed if h_freq=None
+# Warning if h_freq is None
+h_freq = config['params_find_bad_channels_maxwell']['h_freq']
+if h_freq is None:
+    UserWarning_message = f'No low-pass filter will be applied to the data. ' \
+                  'Make sure line noise and cHPI artifacts were removed before finding ' \
+                  'bad channels.'
+    warnings.warn(UserWarning_message)
+    dict_json_product['brainlife'].append({'type': 'warning', 'msg': UserWarning_message})
 
+# Find bad channels
 raw_check = raw.copy()
-auto_noisy_chs, auto_flat_chs = mne.preprocessing.find_bad_channels_maxwell(
+auto_noisy_chs, auto_flat_chs, scores = mne.preprocessing.find_bad_channels_maxwell(
     raw_check, cross_talk=cross_talk_file, calibration=calibration_file, head_pos=head_pos_file,
-    **config['params_find_bad_channels_maxwell'])
+    return_scores=True, **config['params_find_bad_channels_maxwell'])
 
 del raw_check
 
@@ -44,3 +54,7 @@ raw.info['bads'] = bads
 
 # Save file
 raw.save(raw.filenames[0].replace('-raw.fif', '_%s.fif' % config['output_tag']), **config['params_save'])
+
+# Save the dict_json_product in a json file
+with open('product.json', 'w') as outfile:
+    json.dump(dict_json_product, outfile)
