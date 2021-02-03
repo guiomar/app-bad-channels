@@ -3,9 +3,14 @@
 import mne
 import json
 import warnings
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import random
 
 # Print mne version
-print(mne.__version__)
+print('mne', mne.__version__)
 
 # Generate a json.product to display messages on Brainlife UI
 dict_json_product = {'brainlife': []}
@@ -43,17 +48,122 @@ if h_freq is None:
 
 # Find bad channels
 raw_check = raw.copy()
-auto_noisy_chs, auto_flat_chs, scores = mne.preprocessing.find_bad_channels_maxwell(
+auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(
     raw_check, cross_talk=cross_talk_file, calibration=calibration_file, head_pos=head_pos_file,
     return_scores=True, **config['params_find_bad_channels_maxwell'])
 
 del raw_check
 
+# Add bad channels in raw.info
 bads = raw.info['bads'] + auto_noisy_chs + auto_flat_chs
 raw.info['bads'] = bads
 
 # Save file
 raw.save(raw.filenames[0].replace('-raw.fif', '_%s.fif' % config['output_tag']), **config['params_save'])
+
+# Generate a report
+
+# Create report
+report = mne.Report(title='Results identification of bad channels', verbose=True)
+
+# Give info on the raw data
+data_folder = '/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/data_for_test'  # change for BL
+report.parse_folder(data_folder, pattern='*rest1-raw.fif', render_bem=False)
+
+# Plot relevant figures
+
+# Scores for automated noisy channels detection
+# Only select the data for gradiometer channels
+ch_type = 'grad'
+ch_subset = auto_scores['ch_types'] == ch_type
+ch_names = auto_scores['ch_names'][ch_subset]
+scores = auto_scores['scores_noisy'][ch_subset]
+limits = auto_scores['limits_noisy'][ch_subset]
+bins = auto_scores['bins']  # The windows that were evaluated
+# We will label each segment by its start and stop time, with up to 3
+# digits before and 3 digits after the decimal place (1 ms precision).
+bin_labels = [f'{start:3.3f} – {stop:3.3f}'
+              for start, stop in bins]
+
+# Store the data in a Pandas DataFrame. The seaborn heatmap function
+# we will call below will then be able to automatically assign the correct
+# labels to all axes.
+data_to_plot = pd.DataFrame(data=scores,
+                            columns=pd.Index(bin_labels, name='Time (s)'),
+                            index=pd.Index(ch_names, name='Channel'))
+
+# Plot the "raw" scores
+fig_noisy, ax = plt.subplots(1, 2, figsize=(18, 16))
+sns.heatmap(data=data_to_plot, cmap='Reds', cbar_kws=dict(label='Score'),
+            ax=ax[0])
+[ax[0].axvline(x, ls='dashed', lw=0.25, dashes=(25, 15), color='gray')
+    for x in range(1, len(bins))]
+ax[0].set_title('All Scores', fontweight='bold')
+
+# Adjust the color range to highlight segments that exceeded the limit
+sns.heatmap(data=data_to_plot,
+            vmin=np.nanmin(limits),  # bads in input data have NaN limits
+            cmap='Reds', cbar_kws=dict(label='Score'), ax=ax[1])
+[ax[1].axvline(x, ls='dashed', lw=0.25, dashes=(25, 15), color='gray')
+    for x in range(1, len(bins))]
+ax[1].set_title('Scores > Limit', fontweight='bold')
+
+# Add figures to report
+report.add_figs_to_section(fig_noisy, captions=f'Automated noisy channel detection: {ch_type}',
+                           comments=f'Noisy channels detected: {auto_noisy_chs}')
+
+# Scores for automated flat channels detection
+# Only select the data for gradiometer channels
+scores = auto_scores['scores_flat'][ch_subset]
+limits = auto_scores['limits_flat'][ch_subset]
+
+# Store the data in a Pandas DataFrame
+data_to_plot = pd.DataFrame(data=scores,
+                            columns=pd.Index(bin_labels, name='Time (s)'),
+                            index=pd.Index(ch_names, name='Channel'))
+
+# Plot the "raw" scores
+fig_flat, ax = plt.subplots(1, 2, figsize=(18, 16))
+sns.heatmap(data=data_to_plot, cmap='Reds', cbar_kws=dict(label='Score'),
+            ax=ax[0])
+[ax[0].axvline(x, ls='dashed', lw=0.25, dashes=(25, 15), color='gray')
+    for x in range(1, len(bins))]
+ax[0].set_title('All Scores', fontweight='bold')
+
+# Adjust the color range to highlight segments that are below the limit
+sns.heatmap(data=data_to_plot,
+            vmax=np.nanmax(limits),  # bads in input data have NaN limits
+            cmap='Reds_r', cbar_kws=dict(label='Score'), ax=ax[1])
+[ax[1].axvline(x, ls='dashed', lw=0.25, dashes=(25, 15), color='gray')
+    for x in range(1, len(bins))]
+ax[1].set_title('Scores < Limit', fontweight='bold')
+
+# Add figures to report
+report.add_figs_to_section(fig_flat, captions=f'Automated flat channel detection: {ch_type}',
+                           comments=f'Flat channels detected: {auto_flat_chs}')
+
+# If they exist, plot bad channels in time and frequency domains
+# Noisy channels
+if auto_noisy_chs:
+    # ch_to_plot = random.sample(ch_names.tolist(), 49)
+    # ch_to_plot += auto_noisy_chs
+    fig_raw_noisy_channels = raw.pick_types(meg=True, exclude=[]).plot(duration=20, n_channels=20,
+                                                                       butterfly=False)
+    # fig_raw_noisy_channels = raw.pick_channels(ch_to_plot).plot(duration=20, butterfly=False)
+    fig_raw_psd = mne.viz.plot_raw_psd(raw, picks=auto_noisy_chs)
+    # Add figures to report
+    report.add_figs_to_section(fig_raw_noisy_channels, captions=f'Automated noisy channel detected')
+    report.add_figs_to_section(fig_raw_psd, captions=f'Power spectral density of the noisy channels')
+
+# Flat channels
+if auto_flat_chs:
+    fig_raw_flat_channels = raw.pick_channels(auto_flat_chs).plot(duration=20, butterfly=False)
+    fig_raw_psd = mne.viz.plot_raw_psd(raw, picks=auto_flat_chs)
+    report.add_figs_to_section(fig_raw_flat_channels, captions=f'Automated flat channel detected')
+    report.add_figs_to_section(fig_raw_psd, captions=f'Power spectral density of the flat channels')
+
+# Save report
+report.save('report_bad_channels.html', overwrite=True)
 
 # Save the dict_json_product in a json file
 with open('product.json', 'w') as outfile:
