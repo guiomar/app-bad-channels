@@ -1,5 +1,5 @@
 {
-    "input_raw": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/data_for_test/rest1-raw.fif",
+    "input_raw": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/data_for_test/rest3-raw.fif",
     "input_calibration": "//network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/sss_cal.dat",
     "input_cross_talk": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/ct_sparse.fif",
     "head_pos": null,

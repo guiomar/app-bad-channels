@@ -68,7 +68,7 @@ report = mne.Report(title='Results identification of bad channels', verbose=True
 
 # Give info on the raw data
 data_folder = '/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/data_for_test'  # change for BL
-report.parse_folder(data_folder, pattern='*rest1-raw.fif', render_bem=False)
+report.parse_folder(data_folder, pattern='*rest3-raw.fif', render_bem=False)
 
 # Plot relevant figures
 
@@ -145,22 +145,74 @@ report.add_figs_to_section(fig_flat, captions=f'Automated flat channel detection
 # If they exist, plot bad channels in time and frequency domains
 # Noisy channels
 if auto_noisy_chs:
-    # ch_to_plot = random.sample(ch_names.tolist(), 49)
-    # ch_to_plot += auto_noisy_chs
-    fig_raw_noisy_channels = raw.pick_types(meg=True, exclude=[]).plot(duration=20, n_channels=20,
-                                                                       butterfly=False)
-    # fig_raw_noisy_channels = raw.pick_channels(ch_to_plot).plot(duration=20, butterfly=False)
-    fig_raw_psd = mne.viz.plot_raw_psd(raw, picks=auto_noisy_chs)
+
+    # Select random grad channels to plot including the noisy ones
+    ch_to_plot = random.sample(ch_names.tolist(), 49)
+    ch_to_plot += auto_noisy_chs
+    raw_ch_to_plot = raw.copy()
+
+    # Plot channels in time domain
+    raw_ch_to_plot.pick_channels(ch_to_plot)
+    fig_raw_noisy_channels = raw_ch_to_plot.plot(duration=20, n_channels=50, butterfly=False,
+                                                 show_scrollbars=False)
+    del raw_ch_to_plot
+
+    # Plot psd of all grad channels including the noisy one
+    fig_raw_psd_all = mne.viz.plot_raw_psd(raw, picks='grad')
+
+    # Plot psd of all grad channels without the noisy one
+    # Select all grad channels and exclude the noisy ones
+    raw_clean = raw.copy()
+    raw_clean.pick_types(meg='grad', exclude='bads')
+    fig_raw_psd_clean = mne.viz.plot_raw_psd(raw_clean, picks='grad')
+    del raw_clean
+
     # Add figures to report
-    report.add_figs_to_section(fig_raw_noisy_channels, captions=f'Automated noisy channel detected')
-    report.add_figs_to_section(fig_raw_psd, captions=f'Power spectral density of the noisy channels')
+    report.add_figs_to_section(fig_raw_noisy_channels, captions=f'Grad MEG signals including automated '
+                                                                f'detected noisy channels',
+                               comments='The noisy channels are in gray.')
+    captions_fig_raw_psd_all = f'Power spectral density of grad MEG signals including the automated ' \
+                               f'detected noisy channels'
+    captions_fig_raw_psd_clean = f'Power spectral density of grad MEG signals without the automated ' \
+                                 f'detected noisy channels'
+    report.add_figs_to_section(figs=[fig_raw_psd_all, fig_raw_psd_clean],
+                               captions=[captions_fig_raw_psd_all, captions_fig_raw_psd_clean])
 
 # Flat channels
 if auto_flat_chs:
-    fig_raw_flat_channels = raw.pick_channels(auto_flat_chs).plot(duration=20, butterfly=False)
-    fig_raw_psd = mne.viz.plot_raw_psd(raw, picks=auto_flat_chs)
-    report.add_figs_to_section(fig_raw_flat_channels, captions=f'Automated flat channel detected')
-    report.add_figs_to_section(fig_raw_psd, captions=f'Power spectral density of the flat channels')
+
+    # Select random grad channels to plot including the flat ones
+    ch_to_plot = random.sample(ch_names.tolist(), 49)
+    ch_to_plot += auto_flat_chs
+    raw_ch_to_plot = raw.copy()
+
+    # Plot channels in time domain
+    raw_ch_to_plot.pick_channels(ch_to_plot)
+    fig_raw_flat_channels = raw_ch_to_plot.plot(duration=20, n_channels=50, butterfly=False,
+                                                show_scrollbars=False)
+    del raw_ch_to_plot
+
+    # Plot psd of all grad channels including the flat ones
+    fig_raw_psd_all = mne.viz.plot_raw_psd(raw, picks='grad')
+
+    # Plot psd of all grad channels without the flat ones
+    # Select all grad channels excluding the noisy ones
+    raw_clean = raw.copy()
+    raw_clean.pick_types(meg='grad', exclude='bads')
+    fig_raw_psd_clean = mne.viz.plot_raw_psd(raw_clean, picks='grad')
+    del raw_clean
+
+    # Add figures to report
+    report.add_figs_to_section(fig_raw_flat_channels, captions=f'Grad MEG signals including automated '
+                                                               f'detected noisy channels',
+                               comments='The noisy channels are in gray.')
+    captions_fig_raw_psd_all = f'Power spectral density of grad MEG signals including the automated ' \
+                               f'detected noisy channels'
+    captions_fig_raw_psd_clean = f'Power spectral density of grad MEG signals without the automated ' \
+                                 f'detected noisy channels'
+    report.add_figs_to_section(figs=[fig_raw_psd_all, fig_raw_psd_clean],
+                               captions=[captions_fig_raw_psd_all, captions_fig_raw_psd_clean])
+
 
 # Save report
 report.save('report_bad_channels.html', overwrite=True)
