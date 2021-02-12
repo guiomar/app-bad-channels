@@ -217,6 +217,9 @@ if auto_flat_chs:
 # Save report
 report.save('report_bad_channels.html', overwrite=True)
 
+# Success message in product.json
+dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
+
 # Save the dict_json_product in a json file
 with open('product.json', 'w') as outfile:
     json.dump(dict_json_product, outfile)
