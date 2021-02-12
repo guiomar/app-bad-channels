@@ -1,37 +1,6 @@
 {
-    "input_raw": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/data_for_test/rest3-raw.fif",
-    "input_calibration": "//network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/sss_cal.dat",
-    "input_cross_talk": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/ct_sparse.fif",
-    "head_pos": null,
-    "output_tag": "bad_channels-raw",
-    "params_find_bad_channels_maxwell": {
-        "limit": 7.0,
-        "duration": 5.0,
-        "min_count": 5,
-        "origin": "auto",
-        "int_order": 8,
-        "ext_order": 3,
-        "coord_frame": "head",
-        "regularize": "in",
-        "ignore_ref": false,
-        "bad_condition": "error",
-        "mag_scale": 100.0,
-        "skip_by_annotation": ["edge", "bad_acq_skip"],
-        "h_freq": 40.0,
-        "extended_proj": [],
-        "verbose": null
-    },
-    "params_save": {
-        "picks": null,
-        "tmin": 0,
-        "tmax": null,
-        "buffer_size_sec": null,
-        "drop_small_buffer": false,
-        "proj": false,
-        "fmt": "single",
-        "overwrite": true,
-        "split_size": "2GB",
-        "split_naming": "neuromag",
-        "verbose": null
-   }
+    "fif": "/network/lustre/iss01/home/aurore.bussalb/Repositories/app-maxfilter/data/rest1-raw.fif",
+    "calibration": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/sss_cal.dat",
+    "cross_talk_correction": null,
+    "h_freq": 40.0
 }
