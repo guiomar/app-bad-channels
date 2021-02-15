@@ -5,11 +5,18 @@ This is a draft of a future Brainlife App that detects bad channels in MEG recor
 # app-bad-channels-documentation
 
 1) Detect bad channels thanks to SSS without removing external components
-2) Input files are:
+2) Prevent artifacts in bad channels from spreading when MaxFilter is applied   
+3) Input files are:
     * a MEG file in `.fif` format,
     * an optional fine calibration file in `.dat`,
-    * an optional crosstalk compensation file in `.fif`
-3) Ouput file is a `.fif` MEG file with bad channels marked as "bad" in its `mne.info`
+    * an optional crosstalk compensation file in `.fif`,
+    * an optional head position file in `.pos`.
+4) Input parameters are:
+    * `limit`: `float`, detection limit for noisy segments,
+    * `h_freq`: `float`, the cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. 
+5) Ouput files are:
+    * a `.fif` MEG file with bad channels marked as "bad" in its `mne.info`,
+    * an `.html` report containing figures.
 
 ### Authors
 - [Aurore Bussalb](aurore.bussalb@icm-institute.org)
@@ -43,7 +50,7 @@ This App has not yet been registered in Brainlife.io.
 
 ```json
 {
-  "input": "rest1-raw.fif"
+  "fif": "rest1-raw.fif"
 }
 ```
 
@@ -55,4 +62,5 @@ This App has not yet been registered in Brainlife.io.
 
 ## Output
 
-The output file is a MEG file in `.fif` format with its channels detected as "bad" by this App are marked as "bad" in `mne.info`.
+The output file is a MEG file in `.fif` format with its channels detected as "bad" by this App are marked 
+as "bad" in `mne.info` and `html` report.
