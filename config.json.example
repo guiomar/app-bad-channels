@@ -1,6 +1,7 @@
 {
     "fif": "/network/lustre/iss01/home/aurore.bussalb/Repositories/app-maxfilter/data/rest1-raw.fif",
-    "calibration": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/sss_cal.dat",
-    "cross_talk_correction": null,
-    "h_freq": 40.0
+    "calibration": null,
+    "cross_talk_correction": "/network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore/sss_config/ct_sparse.fif",
+    "head_position": null,
+    "param_h_freq": 40.0
 }

@@ -14,12 +14,13 @@
 set -e
 set -x
 
-# Make output directory
-mkdir -p out_dir
+# Make output directories
+mkdir -p out_dir_bad_channels
+mkdir -p out_dir_report
 
 # Run the actual python code
 #singularity exec docker://brainlife/mne:0.22.0 python3 bad-channels.py
 
 # Test local
 #python3 ./bad-channels.py
-singularity exec -e -B /network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore docker://brainlife/mne:0.22.0 python3 bad-channels.py .
+#singularity exec -e -B /network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore docker://brainlife/mne:0.22.0 python3 bad-channels.py .
