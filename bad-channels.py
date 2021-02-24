@@ -52,7 +52,19 @@ if h_freq is None:
 raw_check = raw.copy()
 auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(
     raw_check, cross_talk=cross_talk_file, calibration=calibration_file, head_pos=head_pos_file,
-    return_scores=True, h_freq=h_freq)
+    return_scores=True, h_freq=h_freq,
+    limit=config['param_limit'],
+    duration=config['param_duration'],
+    min_count=config['param_min_count'],
+    int_order=config['param_int_order'],
+    ext_order=config['param_ext_order'],
+    coord_frame=config['param_coord_frame'],
+    regularize=config['param_regularize'],
+    ignore_ref=config['param_ignore_ref'],
+    bad_condition=config['param_bad_condition'],
+    skip_by_annotation=config['param_skip_by_annotation'],
+    mag_scale=config['param_mag_scale']
+)
 
 del raw_check
 

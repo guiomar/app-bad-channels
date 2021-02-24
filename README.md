@@ -12,8 +12,18 @@ This is a draft of a future Brainlife App that detects bad channels in MEG recor
     * an optional crosstalk compensation file in `.fif`,
     * an optional head position file in `.pos`.
 4) Input parameters are:
+    * `duration`: `float`, duration of the segments into which to slice the data for processing, in seconds,
+    * `min_count`: `int`, minimum number of times a channel must show up as bad in a chunk,
     * `limit`: `float`, detection limit for noisy segments,
-    * `h_freq`: `float`, the cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. 
+    * `h_freq`: `float`, the cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data,
+    * `int_order`: `int`, order of internal component of spherical expansion,
+    * `ext_order`: `int`, order of external component of spherical expansion,
+    * `coord_frame`: `str`, the coordinate frame that the origin is specified in, either 'meg' or 'head',
+    * `regularize`: `str`, the destination location for the head, either 'in' or `None`,
+    * `ignore_ref`: `bool`, if `True`, do not include reference channels in compensation,
+    * `bad_condition`: `str`, how to deal with ill-conditioned SSS matrices, either 'error', 'warning', 'info' , 'ignore',
+    * `mag_scale`: `float`, the magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as the gradiometers, as they have different units (T vs T/m),
+    * `param_skip_by_annotation`, `str` or `listof str`, any annotation segment that begins with the given string will not be included in filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
 5) Ouput files are:
     * a `.fif` MEG file with bad channels marked as "bad" in its `mne.info`,
     * an `.html` report containing figures.
