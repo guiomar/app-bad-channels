@@ -171,12 +171,12 @@ def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, data_file_
         # Plot psd of all grad channels including the noisy one
         # Select all grad channels including the noisy ones
         raw_before = raw.copy()
-        raw_before_grad = raw.copy()
-        info = mne.io.read_info(raw_before_grad)
-        raw_before_grad.pick_types(info['ch_names'], meg='grad')
-        print('grad without bads', len(raw_before_grad.info['ch_names']))
-        test = raw_before.pick_types(info['ch_names'], meg='grad', include=auto_noisy_chs)
-        print('grad with bads', len(info['ch_names']))
+        #raw_before_grad = raw.copy()
+        #info = mne.io.read_info(raw_before_grad)
+        #raw_before_grad.pick_types(info['ch_names'], meg='grad')
+        # print('grad without bads', len(raw_before_grad.info['ch_names']))
+        raw_before.pick_types(meg='grad', exclude=[])
+        #print('grad with bads', len(info['ch_names']))
         fig_raw_psd_all = mne.viz.plot_raw_psd(raw_before)
         del raw_before
 
