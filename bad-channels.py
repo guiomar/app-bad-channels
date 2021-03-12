@@ -14,6 +14,57 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
                       param_duration, param_min_count, param_int_order, param_ext_order, param_coord_frame,
                       param_regularize, param_ignore_ref, param_bad_condition, param_skip_by_annotation,
                       param_mag_scale):
+    """Detect bad channels.
+
+    Parameters
+    ----------
+    raw: instance of mne.io.Raw
+        Data to be filtered.
+    cross_talk_file: str or None
+        Path to the FIF file with cross-talk correction information.
+    calibration_file: str or None
+        Path to the '.dat' file with fine calibration coefficients. This file is machine/site-specific.
+    head_pos_file: array or None
+        If array, movement compensation will be performed.
+    param_h_freq: float or None
+        The cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. 
+        This defaults to 40., which should provide similar results to MaxFilter. 
+    param_limit: float
+        Detection limit for noisy segments (default is 7.). Smaller values will find more bad channels at increased risk of including good ones.
+    param_duration: float
+        Duration of the segments into which to slice the data for processing, in seconds. Default is 5.
+    param_min_count: int
+        Minimum number of times a channel must show up as bad in a chunk. Default is 5.
+    param_int_order: int
+        Order of internal component of spherical expansion.
+    param_ext_order: int
+        Order of external component of spherical expansion.
+    param_coord_frame: str
+        The coordinate frame that the origin is specified in, either 'meg' or 'head'.
+    param_regularize: str or None
+        Basis regularization type, must be “in” or None.
+    param_ignore_ref: bool
+        If True, do not include reference channels in compensation.
+    param_bad_condition: str
+        How to deal with ill-conditioned SSS matrices. Can be “error” (default), “warning”, “info”, or “ignore”.
+    param_skip_by_annotation: str or list of str
+        If a string (or list of str), any annotation segment that begins with the given string will not be included in
+        filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
+    param_mag_scale: float
+        The magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as
+        the gradiometers (default 100.), as they have different units (T vs T/m).
+
+    Returns
+    -------
+    raw: instance of mne.io.Raw
+        The raw data with bad channels marked as "bad" in info.
+    noisy_chs: list
+        List of bad MEG channels that were automatically detected as being noisy among the good MEG channels.
+    flat_chs: list
+        List of MEG channels that were detected as being flat in at least min_count segments.
+    scores: dict
+        A dictionary with information produced by the scoring algorithms
+    """
 
     # Find bad channels
     raw_check = raw.copy()
@@ -47,35 +98,8 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     return raw, auto_noisy_chs, auto_flat_chs, auto_scores
 
 
-def _compute_snr(meg_file):
-    # Compute the SNR
-
-    # select only MEG channels and exclude the bad channels
-    meg_file = meg_file.pick_types(meg=True, exclude='bads')
-
-    # create fixed length events
-    array_events = mne.make_fixed_length_events(meg_file, duration=10)
-
-    # create epochs
-    epochs = mne.Epochs(meg_file, array_events)
-
-    # mean signal amplitude on each epoch
-    epochs_data = epochs.get_data()
-    mean_signal_amplitude_per_epoch = epochs_data.mean(axis=(1, 2))  # mean on channels and times
-
-    # mean across all epochs and its std error
-    mean_final = mean_signal_amplitude_per_epoch.mean()
-    std_error_final = np.std(mean_signal_amplitude_per_epoch, ddof=1) / np.sqrt(
-        np.size(mean_signal_amplitude_per_epoch))
-
-    # compute SNR
-    snr = mean_final / std_error_final
-
-    return snr
-
-
-def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, data_file_before=None,
-                     raw_after_preprocessing=None, snr_before=None, snr_after=None):
+def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, raw_before_preprocessing=None, data_file_before=None,
+                     raw_after_preprocessing=None):
     # Generate a report
 
     # Instance of mne.Report
@@ -235,6 +259,46 @@ def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, data_file_
         report.add_figs_to_section(figs=[fig_raw_psd_all, fig_raw_psd_clean],
                                    captions=[captions_fig_raw_psd_all, captions_fig_raw_psd_clean],
                                    section='Flat channels')
+
+    # Give some info about the file before preprocessing
+    bad_channels = raw_before_preprocessing.info['bads']
+    sampling_frequency = raw_before_preprocessing.info['sfreq']
+    highpass = raw_before_preprocessing.info['highpass']
+    lowpass = raw_before_preprocessing.info['lowpass']
+
+    # Put this info in html format
+    # Info on data
+    html_text_info = f"""<html>
+
+    <head>
+        <style type="text/css">
+            table {{ border-collapse: collapse;}}
+            td {{ text-align: center; border: 1px solid #000000; border-style: dashed; font-size: 15px; }}
+        </style>
+    </head>
+
+    <body>
+        <table width="50%" height="80%" border="2px">
+            <tr>
+                <td>Input file: {data_file_before}</td>
+            </tr>
+            <tr>
+                <td>Bad channels: {bad_channels}</td>
+            </tr>
+            <tr>
+                <td>Sampling frequency: {sampling_frequency}Hz</td>
+            </tr>
+            <tr>
+                <td>Highpass: {highpass}Hz</td>
+            </tr>
+            <tr>
+                <td>Lowpass: {lowpass}Hz</td>
+            </tr>
+        </table>
+    </body>
+
+    </html>"""
+
 
     # Save report
     report.save('out_dir_report/report_bad_channels.html', overwrite=True)
