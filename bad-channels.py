@@ -14,7 +14,7 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
                       param_duration, param_min_count, param_int_order, param_ext_order, param_coord_frame,
                       param_regularize, param_ignore_ref, param_bad_condition, param_skip_by_annotation,
                       param_mag_scale):
-    """Detect bad channels.
+    """Detect bad channels and save file with bad channels marked as bad in raw.info.
 
     Parameters
     ----------
