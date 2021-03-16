@@ -67,8 +67,7 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     """
 
     # Find bad channels
-    raw_check = raw.copy()
-    auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(raw_check,
+    auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(raw,
                                                                                              cross_talk=cross_talk_file,
                                                                                              calibration=calibration_file,
                                                                                              head_pos=head_pos_file,
@@ -86,8 +85,6 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
                                                                                              skip_by_annotation=param_skip_by_annotation,
                                                                                              mag_scale=param_mag_scale)
 
-    del raw_check
-
     # Add bad channels in raw.info
     bads = raw.info['bads'] + auto_noisy_chs + auto_flat_chs
     raw.info['bads'] = bads
@@ -98,8 +95,8 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     return raw, auto_noisy_chs, auto_flat_chs, auto_scores
 
 
-def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, raw_before_preprocessing=None, data_file_before=None,
-                     raw_after_preprocessing=None):
+def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_scores, auto_noisy_chs, auto_flat_chs,
+                     data_file_before):
     # Generate a report
 
     # Instance of mne.Report
@@ -145,7 +142,8 @@ def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, raw_before
 
     # Add figures to report
     report.add_figs_to_section(fig_noisy, captions=f'Automated noisy channel detection: {ch_type}',
-                               comments=f'Noisy channels detected: {auto_noisy_chs}', section='Diagnostic figures')
+                               comments=f'Noisy channels detected (grad and mag): {auto_noisy_chs}',
+                               section='Diagnostic figures')
 
     # Scores for automated flat channels detection
     # Only select the data for gradiometer channels
@@ -175,16 +173,17 @@ def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, raw_before
 
     # Add figures to report
     report.add_figs_to_section(fig_flat, captions=f'Automated flat channel detection: {ch_type}',
-                               comments=f'Flat channels detected: {auto_flat_chs}', section='Diagnostic figures')
+                               comments=f'Flat channels detected (grad and mag): {auto_flat_chs}',
+                               section='Diagnostic figures')
 
-    # If they exist, plot bad channels in time and frequency domains
+    # If they exist, plot bad channels in time domain
     # Noisy channels
     if auto_noisy_chs:
 
         # Select random grad channels to plot including the noisy ones
         ch_to_plot = random.sample(ch_names.tolist(), 49)
         ch_to_plot += auto_noisy_chs
-        raw_ch_to_plot = raw.copy()
+        raw_ch_to_plot = raw_after_preprocessing.copy()
 
         # Plot channels in time domain
         raw_ch_to_plot.pick_channels(ch_to_plot)
@@ -192,44 +191,16 @@ def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, raw_before
                                                      show_scrollbars=False)
         del raw_ch_to_plot
 
-        # Plot psd of all grad channels including the noisy one
-        # Select all grad channels including the noisy ones
-        raw_before = raw.copy()
-        #raw_before_grad = raw.copy()
-        #info = mne.io.read_info(raw_before_grad)
-        #raw_before_grad.pick_types(info['ch_names'], meg='grad')
-        # print('grad without bads', len(raw_before_grad.info['ch_names']))
-        raw_before.pick_types(meg='grad', exclude=[])
-        #print('grad with bads', len(info['ch_names']))
-        fig_raw_psd_all = mne.viz.plot_raw_psd(raw_before)
-        del raw_before
-
-        # Plot psd of all grad channels without the noisy one
-        # Select all grad channels and exclude the noisy ones
-        raw_clean = raw.copy()
-        raw_clean.pick_types(meg='grad', exclude='bads')
-        fig_raw_psd_clean = mne.viz.plot_raw_psd(raw_clean)
-        del raw_clean
-
-        # Add figures to report
-        report.add_figs_to_section(fig_raw_noisy_channels, captions=f'Grad MEG signals including automated '
+        report.add_figs_to_section(fig_raw_noisy_channels, captions=f'MEG signals including automated '
                                                                     f'detected noisy channels',
-                                   comments='The noisy channels are in gray.', section='Noisy channels')
-        captions_fig_raw_psd_all = f'Power spectral density of grad MEG signals including the automated ' \
-                                   f'detected noisy channels'
-        captions_fig_raw_psd_clean = f'Power spectral density of grad MEG signals without the automated ' \
-                                     f'detected noisy channels'
-        report.add_figs_to_section(figs=[fig_raw_psd_all, fig_raw_psd_clean],
-                                   captions=[captions_fig_raw_psd_all, captions_fig_raw_psd_clean],
-                                   section='Noisy channels')
+                                   comments='The noisy channels are in gray.', section='Time domain')
 
     # Flat channels
     if auto_flat_chs:
-
         # Select random grad channels to plot including the flat ones
         ch_to_plot = random.sample(ch_names.tolist(), 49)
         ch_to_plot += auto_flat_chs
-        raw_ch_to_plot = raw.copy()
+        raw_ch_to_plot = raw_after_preprocessing.copy()
 
         # Plot channels in time domain
         raw_ch_to_plot.pick_channels(ch_to_plot)
@@ -237,28 +208,29 @@ def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, raw_before
                                                     show_scrollbars=False)
         del raw_ch_to_plot
 
-        # Plot psd of all grad channels including the flat ones
-        # fig_raw_psd_all = mne.viz.plot_raw_psd(raw, picks=['grad'])
-        fig_raw_psd_all = mne.viz.plot_raw_psd(raw, picks='all')
-
-        # Plot psd of all grad channels without the flat ones
-        # Select all grad channels excluding the noisy ones
-        raw_clean = raw.copy()
-        raw_clean.pick_types(meg='grad', exclude='bads')
-        fig_raw_psd_clean = mne.viz.plot_raw_psd(raw_clean, picks='grad')
-        del raw_clean
-
-        # Add figures to report
-        report.add_figs_to_section(fig_raw_flat_channels, captions=f'Grad MEG signals including automated '
+        report.add_figs_to_section(fig_raw_flat_channels, captions=f'MEG signals including automated '
                                                                    f'detected noisy channels',
-                                   section='Flat channels', comments='The noisy channels are in gray.')
-        captions_fig_raw_psd_all = f'Power spectral density of grad MEG signals including the automated ' \
-                                   f'detected noisy channels'
-        captions_fig_raw_psd_clean = f'Power spectral density of grad MEG signals without the automated ' \
+                                   comments='The flat channels are in gray.', section='Time domain')
+
+    # Plot PSD of all channels including bads
+    raw_before_preprocessing.pick_types(meg=True)
+    raw_after_preprocessing.pick_types(meg=True)
+    bads = auto_flat_chs + auto_noisy_chs
+    channels = raw_after_preprocessing.info['ch_names']
+    all_channels = bads + channels
+    fig_raw_psd_all_before = mne.viz.plot_raw_psd(raw_before_preprocessing, picks=all_channels)
+
+    # Plot PSD of all channels excluding bads
+    fig_raw_psd_all_after = mne.viz.plot_raw_psd(raw_after_preprocessing, picks='meg')
+
+    # Add figures to report
+    captions_fig_raw_psd_all_before = f'Power spectral density of grad MEG signals including the automated ' \
+                                      f'detected noisy channels'
+    captions_fig_raw_psd_all_after = f'Power spectral density of grad MEG signals without the automated ' \
                                      f'detected noisy channels'
-        report.add_figs_to_section(figs=[fig_raw_psd_all, fig_raw_psd_clean],
-                                   captions=[captions_fig_raw_psd_all, captions_fig_raw_psd_clean],
-                                   section='Flat channels')
+    report.add_figs_to_section(figs=[fig_raw_psd_all_before, fig_raw_psd_all_after],
+                               captions=[captions_fig_raw_psd_all_before, captions_fig_raw_psd_all_after],
+                               section='Power Spectral Density')
 
     # Give some info about the file before preprocessing
     bad_channels = raw_before_preprocessing.info['bads']
@@ -283,7 +255,7 @@ def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, raw_before
                 <td>Input file: {data_file_before}</td>
             </tr>
             <tr>
-                <td>Bad channels: {bad_channels}</td>
+                <td>Bad channels before automated detection: {bad_channels}</td>
             </tr>
             <tr>
                 <td>Sampling frequency: {sampling_frequency}Hz</td>
@@ -299,6 +271,8 @@ def _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs, raw_before
 
     </html>"""
 
+    # Add html to reports
+    report.add_htmls_to_section(html_text_info, captions='MEG recording features', section='Info', replace=False)
 
     # Save report
     report.save('out_dir_report/report_bad_channels.html', overwrite=True)
@@ -340,24 +314,26 @@ def main():
     h_freq_param = config['param_h_freq']
     if h_freq_param is None:
         user_warning_message = f'No low-pass filter will be applied to the data. ' \
-                              'Make sure line noise and cHPI artifacts were removed before finding ' \
-                              'bad channels.'
+                               f'Make sure line noise and cHPI artifacts were removed before finding ' \
+                               f'bad channels.'
         warnings.warn(user_warning_message)
         dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message})
 
-    raw, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw, cross_talk_file, calibration_file,
-                                                                        head_pos_file, h_freq_param,
-                                                                        config['param_limit'],
-                                                                        config['param_duration'],
-                                                                        config['param_min_count'],
-                                                                        config['param_int_order'],
-                                                                        config['param_ext_order'],
-                                                                        config['param_coord_frame'],
-                                                                        config['param_regularize'],
-                                                                        config['param_ignore_ref'],
-                                                                        config['param_bad_condition'],
-                                                                        config['param_skip_by_annotation'],
-                                                                        config['param_mag_scale'])
+    raw_copy = raw.copy()
+    raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
+                                                                                     calibration_file,
+                                                                                     head_pos_file, h_freq_param,
+                                                                                     config['param_limit'],
+                                                                                     config['param_duration'],
+                                                                                     config['param_min_count'],
+                                                                                     config['param_int_order'],
+                                                                                     config['param_ext_order'],
+                                                                                     config['param_coord_frame'],
+                                                                                     config['param_regularize'],
+                                                                                     config['param_ignore_ref'],
+                                                                                     config['param_bad_condition'],
+                                                                                     config['param_skip_by_annotation'],
+                                                                                     config['param_mag_scale'])
 
     # Success message in product.json
     dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
@@ -367,7 +343,8 @@ def main():
                                                                   f"Don't hesitate to check all of the signals visually "
                                                                   f"before performing an another preprocessing step."})
 
-    _generate_report(raw, auto_scores, auto_noisy_chs, auto_flat_chs)
+    raw_bad_channels.pick_types(meg=True)
+    _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file)
 
     # Save the dict_json_product in a json file
     with open('product.json', 'w') as outfile:
