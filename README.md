@@ -2,7 +2,7 @@
 
 This is a draft of a future Brainlife App that detects bad channels in MEG recordings using [`mne.preprocessing.find_bad_channels_maxwell`](https://mne.tools/stable/generated/mne.preprocessing.maxwell_filter.html#mne.preprocessing.maxwell_filter).
 
-# app-bad-channels-documentation
+# app-bad-channels documentation
 
 1) Detect bad channels thanks to SSS without removing external components
 2) Prevent artifacts in bad channels from spreading when MaxFilter is applied   
