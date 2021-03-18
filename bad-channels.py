@@ -187,7 +187,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
 
         # Plot channels in time domain
         raw_ch_to_plot.pick_channels(ch_to_plot)
-        fig_raw_noisy_channels = raw_ch_to_plot.plot(duration=20, n_channels=50, butterfly=False,
+        fig_raw_noisy_channels = raw_ch_to_plot.plot(duration=20, n_channels=50, scalings='auto', butterfly=False,
                                                      show_scrollbars=False)
         del raw_ch_to_plot
 
@@ -204,7 +204,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
 
         # Plot channels in time domain
         raw_ch_to_plot.pick_channels(ch_to_plot)
-        fig_raw_flat_channels = raw_ch_to_plot.plot(duration=20, n_channels=50, butterfly=False,
+        fig_raw_flat_channels = raw_ch_to_plot.plot(duration=20, n_channels=50, scalings='auto', butterfly=False,
                                                     show_scrollbars=False)
         del raw_ch_to_plot
 
