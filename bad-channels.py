@@ -67,7 +67,8 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     """
 
     # Find bad channels
-    auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(raw,
+    raw_check = raw.copy()
+    auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(raw_check,
                                                                                              cross_talk=cross_talk_file,
                                                                                              calibration=calibration_file,
                                                                                              head_pos=head_pos_file,
@@ -84,6 +85,8 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
                                                                                              bad_condition=param_bad_condition,
                                                                                              skip_by_annotation=param_skip_by_annotation,
                                                                                              mag_scale=param_mag_scale)
+
+    del raw_check
 
     # Add bad channels in raw.info
     bads = raw.info['bads'] + auto_noisy_chs + auto_flat_chs
@@ -209,7 +212,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
         del raw_ch_to_plot
 
         report.add_figs_to_section(fig_raw_flat_channels, captions=f'MEG signals including automated '
-                                                                   f'detected noisy channels',
+                                                                   f'detected flat channels',
                                    comments='The flat channels are in gray.', section='Time domain')
 
     # Plot PSD of all channels including bads
@@ -224,9 +227,9 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
     fig_raw_psd_all_after = mne.viz.plot_raw_psd(raw_after_preprocessing, picks='meg')
 
     # Add figures to report
-    captions_fig_raw_psd_all_before = f'Power spectral density of grad MEG signals including the automated ' \
+    captions_fig_raw_psd_all_before = f'Power spectral density of MEG signals including the automated ' \
                                       f'detected noisy channels'
-    captions_fig_raw_psd_all_after = f'Power spectral density of grad MEG signals without the automated ' \
+    captions_fig_raw_psd_all_after = f'Power spectral density of grad signals without the automated ' \
                                      f'detected noisy channels'
     report.add_figs_to_section(figs=[fig_raw_psd_all_before, fig_raw_psd_all_after],
                                captions=[captions_fig_raw_psd_all_before, captions_fig_raw_psd_all_after],
@@ -343,7 +346,7 @@ def main():
                                                                   f"Don't hesitate to check all of the signals visually "
                                                                   f"before performing an another preprocessing step."})
 
-    raw_bad_channels.pick_types(meg=True)
+    # Generate report
     _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file)
 
     # Save the dict_json_product in a json file
