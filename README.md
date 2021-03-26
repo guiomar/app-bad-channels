@@ -16,6 +16,8 @@ This is a draft of a future Brainlife App that detects bad channels in MEG recor
     * `min_count`: `int`, minimum number of times a channel must show up as bad in a chunk. Default is 5.
     * `limit`: `float`, detection limit for noisy segments. Default is 7.
     * `h_freq`: `float`, optional the cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. Default is 40.
+    * `origin`: `str`, origin of internal and external multipolar moment space in meters. Default is 'auto'. 
+    * `return_scores`: `bool`, if True, return a dictionary with scoring information for each evaluated segment of the data. Default in MNE is False but here it must be True.
     * `int_order`: `int`, order of internal component of spherical expansion. Default is 8.
     * `ext_order`: `int`, order of external component of spherical expansion. Default is 3.
     * `coord_frame`: `str`, the coordinate frame that the origin is specified in, either 'meg' or 'head'. Default is 'head'.
@@ -26,7 +28,8 @@ This is a draft of a future Brainlife App that detects bad channels in MEG recor
     * `param_skip_by_annotation`, `str` or `list of str`, any annotation segment that begins with the given string will not be included in filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
       Default is `["edge, "bad acq skip"]`.
       
-This list along with the parameters' default values correspond to the 0.22.0 version of MNE Python. 
+This list along with the default values correspond to the parameters of MNE Python version 0.22.0 find_bad_channels_maxwell function (except for return_scores).
+N.B: one parameter (`extended_proj`) is not included here and so is set to its default value defined by MNE Python, which is an empty list.
 
 5) Ouput files are:
     * a `.fif` MEG file with bad channels marked as "bad" in its `mne.info`,

@@ -329,6 +329,12 @@ def main():
         warnings.warn(user_warning_message)
         dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message})
 
+    # Check if config['param_return_scores'] is True   
+    if config['param_return_scores'] is not True:
+        value_error_message = f'param_return_scores must be True.'
+        raise ValueError(value_error_message)   
+
+    # Apply find bad channels     
     raw_copy = raw.copy()
     raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
                                                                                      calibration_file,
