@@ -3,6 +3,8 @@
     "calibration": null,
     "cross_talk_correction": null,
     "head_position": null,
+	"param_origin": "auto",
+	"param_return_scores": true,
     "param_limit": 7,
     "param_duration": 5,
     "param_min_count": 5,

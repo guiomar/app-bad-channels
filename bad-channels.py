@@ -10,11 +10,12 @@ import numpy as np
 import random
 
 
-def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, param_h_freq, param_limit,
-                      param_duration, param_min_count, param_int_order, param_ext_order, param_coord_frame,
-                      param_regularize, param_ignore_ref, param_bad_condition, param_skip_by_annotation,
-                      param_mag_scale):
-    """Detect bad channels and save file with bad channels marked as bad in raw.info.
+def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, param_origin, param_return_scores, 
+                      param_h_freq, param_limit, param_duration, param_min_count,
+                      param_int_order, param_ext_order, param_coord_frame,
+                      param_regularize, param_ignore_ref, param_bad_condition, 
+                      param_skip_by_annotation, param_mag_scale):
+    """Detect bad channels and save file with bad channels marked as bad in info.
 
     Parameters
     ----------
@@ -26,15 +27,20 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
         Path to the '.dat' file with fine calibration coefficients. This file is machine/site-specific.
     head_pos_file: array or None
         If array, movement compensation will be performed.
+    param_origin: str
+        Origin of internal and external multipolar moment space in meters. The default is 'auto', which means (0., 0., 0.) 
+        when coord_frame='meg', and a head-digitization-based origin fit using fit_sphere_to_headshape() when coord_frame='head'.
+    param_return_scores: bool
+        If True, return a dictionary with scoring information for each evaluated segment of the data. 
     param_h_freq: float or None
         The cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. 
         This defaults to 40., which should provide similar results to MaxFilter. 
     param_limit: float
         Detection limit for noisy segments (default is 7.). Smaller values will find more bad channels at increased risk of including good ones.
     param_duration: float
-        Duration of the segments into which to slice the data for processing, in seconds. Default is 5.
+        Duration of the segments into which to slice the data for processing, in seconds (default is 5).
     param_min_count: int
-        Minimum number of times a channel must show up as bad in a chunk. Default is 5.
+        Minimum number of times a channel must show up as bad in a chunk (default is 5).
     param_int_order: int
         Order of internal component of spherical expansion.
     param_ext_order: int
@@ -63,7 +69,7 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     flat_chs: list
         List of MEG channels that were detected as being flat in at least min_count segments.
     scores: dict
-        A dictionary with information produced by the scoring algorithms
+        A dictionary with information produced by the scoring algorithms.
     """
 
     # Find bad channels
@@ -72,6 +78,7 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
                                                                                              cross_talk=cross_talk_file,
                                                                                              calibration=calibration_file,
                                                                                              head_pos=head_pos_file,
+                                                                                             origin=param_origin,
                                                                                              return_scores=True,
                                                                                              h_freq=param_h_freq,
                                                                                              limit=param_limit,
@@ -102,7 +109,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
                      data_file_before):
     # Generate a report
 
-    # Instance of mne.Report
+    # Create instance of mne.Report
     report = mne.Report(title='Results identification of bad channels', verbose=True)
 
     # Plot diagnostic figures
@@ -305,7 +312,7 @@ def main():
     else:
         calibration_file = None
 
-    # Head pos file
+    # Get head pos file
     if 'head_position' in config.keys():
         head_pos_file = config.pop('head_position')
         if head_pos_file is not None:  # when App is run locally and "head_position": null in config.json
@@ -313,7 +320,7 @@ def main():
     else:
         head_pos_file = None
 
-    # Warning if h_freq is None
+    # Display a warning if h_freq is None
     h_freq_param = config['param_h_freq']
     if h_freq_param is None:
         user_warning_message = f'No low-pass filter will be applied to the data. ' \
@@ -325,7 +332,10 @@ def main():
     raw_copy = raw.copy()
     raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
                                                                                      calibration_file,
-                                                                                     head_pos_file, h_freq_param,
+                                                                                     head_pos_file, 
+                                                                                     config['param_origin'],
+                                                                                     config['param_return_scores'],
+                                                                                     h_freq_param,
                                                                                      config['param_limit'],
                                                                                      config['param_duration'],
                                                                                      config['param_min_count'],
@@ -338,10 +348,10 @@ def main():
                                                                                      config['param_skip_by_annotation'],
                                                                                      config['param_mag_scale'])
 
-    # Success message in product.json
+    # Write a success message in product.json
     dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
 
-    # Info message in product.json
+    # Write an info message in product.json
     dict_json_product['brainlife'].append({'type': 'info', 'msg': f'This algorithm is not fully reliable. '
                                                                   f"Don't hesitate to check all of the signals visually "
                                                                   f"before performing an another preprocessing step."})
