@@ -25,7 +25,7 @@ This is a draft of a future Brainlife App that detects bad channels in MEG recor
     * `ignore_ref`: `bool`, if `True`, do not include reference channels in compensation. Default is `False`.
     * `bad_condition`: `str`, how to deal with ill-conditioned SSS matrices, either 'error', 'warning', 'info' , 'ignore'. Default is 'error'.
     * `mag_scale`: `float`, the magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as the gradiometers, as they have different units (T vs T/m). Default is 100.
-    * `param_skip_by_annotation`, `str` or `list of str`, any annotation segment that begins with the given string will not be included in filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
+    * `skip_by_annotation`, `str` or `list of str`, any annotation segment that begins with the given string will not be included in filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
       Default is `["edge, "bad acq skip"]`.
       
 This list along with the default values correspond to the parameters of MNE Python version 0.22.0 find_bad_channels_maxwell function (except for return_scores).
