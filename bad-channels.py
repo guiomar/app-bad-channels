@@ -321,8 +321,8 @@ def main():
         head_pos_file = None
 
     # Display a warning if h_freq is None
-    h_freq_param = config['param_h_freq']
-    if h_freq_param is None:
+    if config['param_h_freq'] == "":
+        h_freq_param = None
         user_warning_message = f'No low-pass filter will be applied to the data. ' \
                                f'Make sure line noise and cHPI artifacts were removed before finding ' \
                                f'bad channels.'
