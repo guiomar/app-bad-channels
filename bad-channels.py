@@ -100,7 +100,6 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     raw.info['bads'] = bads
 
     # Save file
-    # raw.save("out_dir_bad_channels/bad_channels-raw.fif", overwrite=True)
     raw.save("out_dir_bad_channels/meg.fif", overwrite=True)
 
     return raw, auto_noisy_chs, auto_flat_chs, auto_scores
