@@ -317,7 +317,7 @@ def main():
     if os.path.exists(calibration_file) is False:
         calibration_file = None
     else:
-        shutil.copy2(calibration_file, 'out_dir_bad_channels/calibration_meg.fif')  # required to run a pipeline on BL
+        shutil.copy2(calibration_file, 'out_dir_bad_channels/calibration_meg.dat')  # required to run a pipeline on BL
 
     # Read the destination file
     destination_file = config.pop('destination')
