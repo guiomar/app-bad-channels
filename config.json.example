@@ -1,8 +1,9 @@
 {
     "fif": "/network/lustre/iss01/home/aurore.bussalb/Repositories/app-maxfilter/data/rest1-raw.fif",
-    "calibration": null,
-    "cross_talk_correction": null,
-    "head_position": null,
+    "calibration": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/sss_cal.dat",
+    "crosstalk": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/ct_sparse.fif",
+    "headshape": "",
+    "destination": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/mean_tm-raw.fif",
     "param_origin": "auto",
     "param_return_scores": true,
     "param_limit": 7,

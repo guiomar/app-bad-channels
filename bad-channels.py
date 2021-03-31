@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import random
+import os
 
 
 def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, param_origin, param_return_scores, 
@@ -28,15 +29,17 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     head_pos_file: array or None
         If array, movement compensation will be performed.
     param_origin: str
-        Origin of internal and external multipolar moment space in meters. The default is 'auto', which means (0., 0., 0.) 
-        when coord_frame='meg', and a head-digitization-based origin fit using fit_sphere_to_headshape() when coord_frame='head'.
+        Origin of internal and external multipolar moment space in meters. The default is 'auto', which means
+        (0., 0., 0.) when coord_frame='meg', and a head-digitization-based origin fit using fit_sphere_to_headshape()
+        when coord_frame='head'.
     param_return_scores: bool
         If True, return a dictionary with scoring information for each evaluated segment of the data. 
     param_h_freq: float or None
         The cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. 
         This defaults to 40., which should provide similar results to MaxFilter. 
     param_limit: float
-        Detection limit for noisy segments (default is 7.). Smaller values will find more bad channels at increased risk of including good ones.
+        Detection limit for noisy segments (default is 7.). Smaller values will find more bad channels at increased
+        risk of including good ones.
     param_duration: float
         Duration of the segments into which to slice the data for processing, in seconds (default is 5).
     param_min_count: int
@@ -79,7 +82,7 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
                                                                                              calibration=calibration_file,
                                                                                              head_pos=head_pos_file,
                                                                                              origin=param_origin,
-                                                                                             return_scores=True,
+                                                                                             return_scores=param_return_scores,
                                                                                              h_freq=param_h_freq,
                                                                                              limit=param_limit,
                                                                                              duration=param_duration,
@@ -302,27 +305,28 @@ def main():
     raw = mne.io.read_raw_fif(data_file, allow_maxshield=True)
 
     # Read the calibration files
-    if 'cross_talk_correction' in config.keys():
-        cross_talk_file = config.pop('cross_talk_correction')
-    else:
+    cross_talk_file = config.pop('crosstalk')
+    if os.path.exists(cross_talk_file) is False:
         cross_talk_file = None
 
-    if 'calibration' in config.keys():
-        calibration_file = config.pop('calibration')
-    else:
+    calibration_file = config.pop('calibration')
+    if os.path.exists(calibration_file) is False:
         calibration_file = None
 
+    destination_file = config.pop('destination')
+    if os.path.exists(destination_file) is False:
+        destination_file = None
+
     # Get head pos file
-    if 'head_position' in config.keys():
-        head_pos_file = config.pop('head_position')
-        if head_pos_file is not None:  # when App is run locally and "head_position": null in config.json
-            head_pos_file = mne.chpi.read_head_pos(head_pos_file)
+    head_pos_file = config.pop('headshape')
+    if os.path.exists(head_pos_file) is True:
+        head_pos_file = mne.chpi.read_head_pos(head_pos_file)
     else:
         head_pos_file = None
 
     # Display a warning if h_freq is None
     h_freq_param = config['param_h_freq']
-    if h_freq_param  == "":
+    if h_freq_param == "":
         h_freq_param = None
         user_warning_message = f'No low-pass filter will be applied to the data. ' \
                                f'Make sure line noise and cHPI artifacts were removed before finding ' \
@@ -360,7 +364,8 @@ def main():
 
     # Write an info message in product.json
     dict_json_product['brainlife'].append({'type': 'info', 'msg': f'This algorithm is not fully reliable. '
-                                                                  f"Don't hesitate to check all of the signals visually "
+                                                                  f"Don't hesitate to check all of the "
+                                                                  f"signals visually "
                                                                   f"before performing an another preprocessing step."})
 
     # Generate report
@@ -373,4 +378,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
