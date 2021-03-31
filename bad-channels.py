@@ -318,7 +318,7 @@ def main():
         destination_file = None
 
     # Get head pos file
-    # head_pos_file = config.pop('headshape')
+    head_pos_file = config.pop('headshape')
     # if os.path.exists(head_pos_file) is True:
     #     head_pos_file = mne.chpi.read_head_pos(head_pos_file)
     # else:
