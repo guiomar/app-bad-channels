@@ -325,7 +325,7 @@ def main():
         shutil.copy2(destination_file, 'out_dir_bad_channels/destination.fif')  # required to run a pipeline on BL
 
     # Get head pos file
-    head_pos= config.pop('headshape')
+    head_pos = config.pop('headshape')
     if os.path.exists(head_pos) is True:
         head_pos_file = mne.chpi.read_head_pos(head_pos)
         shutil.copy2(head_pos, 'out_dir_bad_channels/headshape.pos')  # required to run a pipeline on BL

@@ -18,12 +18,5 @@ set -x
 mkdir -p out_dir_bad_channels
 mkdir -p out_dir_report
 
-# Put the calibration files in out_dir_bad_channels
-
-
 # Run the actual python code
 singularity exec docker://brainlife/mne:0.22.0 python3 bad-channels.py
-
-# Test local
-#python3 ./bad-channels.py
-#singularity exec -e -B /network/lustre/iss01/cenir/analyse/meeg/BRAINLIFE/aurore docker://brainlife/mne:0.22.0 python3 bad-channels.py .
