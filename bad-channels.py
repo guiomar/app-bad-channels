@@ -348,13 +348,13 @@ def main():
 
     # Define kwargs
     if config['_app'] in config.keys():
-        config.pop('_app')
+        del config['_app']
     if config['_tid'] in config.keys():
-        config.pop('_tid')
+        del config['_tid']
     if config['_inputs'] in config.keys():
-        config.pop('_inputs')
+        del config['_inputs']
     if config['_outputs'] in config.keys():
-        config.pop('_outputs')
+        del config['_outputs']
     kwargs = config  
 
     # Apply find bad channels     
