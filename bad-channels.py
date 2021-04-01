@@ -333,7 +333,7 @@ def main():
         head_pos_file = None
 
     # Display a warning if h_freq is None
-    h_freq_param = config['param_h_freq']
+    h_freq_param = config.pop('param_h_freq')
     if h_freq_param == "":
         h_freq_param = None
         user_warning_message = f'No low-pass filter will be applied to the data. ' \
