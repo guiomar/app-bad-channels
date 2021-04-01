@@ -344,37 +344,25 @@ def main():
     # Check if config['param_return_scores'] is True   
     if config['param_return_scores'] is not True:
         value_error_message = f'param_return_scores must be True.'
-        raise ValueError(value_error_message)   
+        raise ValueError(value_error_message) 
+
+    # Define kwargs
+    if config['_app'] and config['_tid'] and config['_inputs'] and config['_outputs'] in config.keys():
+        print('aaaaaaaa')
+        config.pop('_app')
+        config.pop('_tid')
+        config.pop('_inputs')
+        config.pop('_outputs')
+
+    kwargs = config  
 
     # Apply find bad channels     
     raw_copy = raw.copy()
-    kwargs = config
-    print(kwargs)
-    # raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
-    #                                                                                  calibration_file,
-    #                                                                                  head_pos_file, 
-    #                                                                                  h_freq_param,
-    #                                                                                  config['param_origin'],
-    #                                                                                  config['param_return_scores'],
-    #                                                                                  config['param_limit'],
-    #                                                                                  config['param_duration'],
-    #                                                                                  config['param_min_count'],
-    #                                                                                  config['param_int_order'],
-    #                                                                                  config['param_ext_order'],
-    #                                                                                  config['param_coord_frame'],
-    #                                                                                  config['param_regularize'],
-    #                                                                                  config['param_ignore_ref'],
-    #                                                                                  config['param_bad_condition'],
-    #                                                                                  config['param_skip_by_annotation'],
-    #                                                                                  config['param_mag_scale'])
-
     raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
                                                                                      calibration_file,
                                                                                      head_pos_file, 
                                                                                      h_freq_param,
                                                                                      **kwargs)
-
-
     del raw_copy
 
     # Write a success message in product.json
