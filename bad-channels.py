@@ -347,13 +347,14 @@ def main():
         raise ValueError(value_error_message) 
 
     # Define kwargs
-    if config['_app'] and config['_tid'] and config['_inputs'] and config['_outputs'] in config.keys():
-        print('aaaaaaaa')
+    if config['_app'] in config.keys():
         config.pop('_app')
+    if config['_tid'] in config.keys():
         config.pop('_tid')
+    if config['_inputs'] in config.keys():
         config.pop('_inputs')
+    if config['_outputs'] in config.keys():
         config.pop('_outputs')
-
     kwargs = config  
 
     # Apply find bad channels     
