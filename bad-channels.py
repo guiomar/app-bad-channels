@@ -78,32 +78,24 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
 
     # Find bad channels
     raw_check = raw.copy()
-    # auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(raw_check,
-    #                                                                                          cross_talk=cross_talk_file,
-    #                                                                                          calibration=calibration_file,
-    #                                                                                          head_pos=head_pos_file,
-    #                                                                                          h_freq=param_h_freq,
-    #                                                                                          origin=param_origin,
-    #                                                                                          return_scores=param_return_scores,                                                                                             
-    #                                                                                          limit=param_limit,
-    #                                                                                          duration=param_duration,
-    #                                                                                          min_count=param_min_count,
-    #                                                                                          int_order=param_int_order,
-    #                                                                                          ext_order=param_ext_order,
-    #                                                                                          coord_frame=param_coord_frame,
-    #                                                                                          regularize=param_regularize,
-    #                                                                                          ignore_ref=param_ignore_ref,
-    #                                                                                          bad_condition=param_bad_condition,
-    #                                                                                          skip_by_annotation=param_skip_by_annotation,
-    #                                                                                          mag_scale=param_mag_scale)
-
     auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(raw_check,
                                                                                              cross_talk=cross_talk_file,
                                                                                              calibration=calibration_file,
                                                                                              head_pos=head_pos_file,
-                                                                                             h_freq=param_h_freq, **kwargs)
-
-
+                                                                                             h_freq=param_h_freq,
+                                                                                             origin=param_origin,
+                                                                                             return_scores=param_return_scores,                                                                                             
+                                                                                             limit=param_limit,
+                                                                                             duration=param_duration,
+                                                                                             min_count=param_min_count,
+                                                                                             int_order=param_int_order,
+                                                                                             ext_order=param_ext_order,
+                                                                                             coord_frame=param_coord_frame,
+                                                                                             regularize=param_regularize,
+                                                                                             ignore_ref=param_ignore_ref,
+                                                                                             bad_condition=param_bad_condition,
+                                                                                             skip_by_annotation=param_skip_by_annotation,
+                                                                                             mag_scale=param_mag_scale)
     del raw_check
 
     # Add bad channels in raw.info
