@@ -347,7 +347,6 @@ def main():
         raise ValueError(value_error_message) 
 
     # Define kwargs
-    print(config['_inputs'])
     if config['_app'] in config.keys():
         del config['_app']
     if config['_tid'] in config.keys():
