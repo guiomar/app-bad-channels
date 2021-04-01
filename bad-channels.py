@@ -350,12 +350,13 @@ def main():
     # Apply find bad channels     
     raw_copy = raw.copy()
     kwargs = config
+    print(kwargs)
     # raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
     #                                                                                  calibration_file,
     #                                                                                  head_pos_file, 
+    #                                                                                  h_freq_param,
     #                                                                                  config['param_origin'],
     #                                                                                  config['param_return_scores'],
-    #                                                                                  h_freq_param,
     #                                                                                  config['param_limit'],
     #                                                                                  config['param_duration'],
     #                                                                                  config['param_min_count'],
