@@ -366,6 +366,7 @@ def main():
                                                                                      config['param_bad_condition'],
                                                                                      config['param_skip_by_annotation'],
                                                                                      config['param_mag_scale'])
+    del raw_copy
 
     # Write a success message in product.json
     dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
