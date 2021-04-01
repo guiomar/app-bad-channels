@@ -347,13 +347,13 @@ def main():
         raise ValueError(value_error_message) 
 
     # Define kwargs
-    if config['_app'] in config.keys():
+    if '_app' in config.keys():
         del config['_app']
-    if config['_tid'] in config.keys():
+    if '_tid' in config.keys():
         del config['_tid']
-    if config['_inputs'] in config.keys():
+    if '_inputs' in config.keys():
         del config['_inputs']
-    if config['_outputs'] in config.keys():
+    if '_outputs' in config.keys():
         del config['_outputs'][0]
     kwargs = config  
 
