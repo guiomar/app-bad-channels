@@ -347,15 +347,7 @@ def main():
         raise ValueError(value_error_message) 
 
     # Define kwargs
-    # if '_app' in config.keys():
-    #     del config['_app']
-    # if '_tid' in config.keys():
-    #     del config['_tid']
-    # if '_inputs' in config.keys():
-    #     del config['_inputs']
-    # if '_outputs' in config.keys():
-    #     del config['_outputs']
-
+    # Delete keys values in config.json when this app is executed on Brainlife
     if '_app' and '_tid' and '_inputs' and '_outputs' in config.keys():
         del config['_app'], config['_tid'], config['_inputs'], config['_outputs'] 
     kwargs = config  
