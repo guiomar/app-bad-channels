@@ -323,13 +323,18 @@ def main():
     if os.path.exists(destination_file) is True:
         shutil.copy2(destination_file, 'out_dir_bad_channels/destination.fif')  # required to run a pipeline on BL
 
-    # Get head pos file
+    # Read head pos file
     head_pos = config.pop('headshape')
     if os.path.exists(head_pos) is True:
         head_pos_file = mne.chpi.read_head_pos(head_pos)
         shutil.copy2(head_pos, 'out_dir_bad_channels/headshape.pos')  # required to run a pipeline on BL
     else:
         head_pos_file = None
+
+    # Read events file 
+    events_file = config.pop('events')
+    if os.path.exists(events_file) is True:
+        shutil.copy2(events_file, 'out_dir_bad_channels/events.tsv')  # required to run a pipeline on BL
 
     # Display a warning if h_freq is None
     h_freq_param = config.pop('param_h_freq')
