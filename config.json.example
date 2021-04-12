@@ -4,6 +4,7 @@
     "crosstalk": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/ct_sparse.fif",
     "headshape": "",
     "destination": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/mean_tm-raw.fif",
+	"events": "/network/lustre/iss01/home/aurore.bussalb/Repositories/app-create-events/out_dir_create_events/events.tsv",
     "param_origin": "auto",
     "param_return_scores": true,
     "param_limit": 7,
