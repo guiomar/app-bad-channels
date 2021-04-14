@@ -337,9 +337,8 @@ def main():
         shutil.copy2(events_file, 'out_dir_bad_channels/events.tsv')  # required to run a pipeline on BL
 
     # Display a warning if h_freq is None
-    h_freq_param = config.pop('param_h_freq')
-    if h_freq_param == "":
-        h_freq_param = None
+    if config['param_h_freq'] == "":
+        config['param_h_freq'] = None
         user_warning_message = f'No low-pass filter will be applied to the data. ' \
                                f'Make sure line noise and cHPI artifacts were removed before finding ' \
                                f'bad channels.'
@@ -362,7 +361,6 @@ def main():
     raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
                                                                                      calibration_file,
                                                                                      head_pos_file, 
-                                                                                     h_freq_param,
                                                                                      **kwargs)
     del raw_copy
 
@@ -376,7 +374,7 @@ def main():
                                                                   f"before performing an another preprocessing step."})
 
     # Generate report
-    _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file)
+    # _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file)
 
     # Save the dict_json_product in a json file
     with open('product.json', 'w') as outfile:
