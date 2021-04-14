@@ -19,4 +19,4 @@ mkdir -p out_dir_bad_channels
 mkdir -p out_dir_report
 
 # Run the actual python code
-singularity exec docker://brainlife/mne:0.22.0 python3 bad-channels.py
+singularity exec docker://brainlife/mne:0.22.0 python3 find_bad_channels.py
