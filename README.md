@@ -14,20 +14,20 @@ Repository of a Brainlife App that detects bad channels in MEG recordings using 
     * an optional destination file in `.fif`,
     * an optional event file in `.tsv`.
 4) Input parameters are:
-    * `duration`: `float`, duration of the segments into which to slice the data for processing, in seconds. Default is 5.
-    * `min_count`: `int`, minimum number of times a channel must show up as bad in a chunk. Default is 5.
-    * `limit`: `float`, detection limit for noisy segments. Default is 7.
-    * `h_freq`: `float`, optional the cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. Default is 40.
-    * `origin`: `str`, origin of internal and external multipolar moment space in meters. Default is 'auto'. 
-    * `return_scores`: `bool`, if True, return a dictionary with scoring information for each evaluated segment of the data. Default in MNE is False but here it must be True.
-    * `int_order`: `int`, order of internal component of spherical expansion. Default is 8.
-    * `ext_order`: `int`, order of external component of spherical expansion. Default is 3.
-    * `coord_frame`: `str`, the coordinate frame that the origin is specified in, either 'meg' or 'head'. Default is 'head'.
-    * `regularize`: `str`, optional, the destination location for the head, either 'in' or `None`. Default is 'in'.
-    * `ignore_ref`: `bool`, if `True`, do not include reference channels in compensation. Default is `False`.
-    * `bad_condition`: `str`, how to deal with ill-conditioned SSS matrices, either 'error', 'warning', 'info' , 'ignore'. Default is 'error'.
-    * `mag_scale`: `float`, the magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as the gradiometers, as they have different units (T vs T/m). Default is 100.
-    * `skip_by_annotation`, `str` or `list of str`, any annotation segment that begins with the given string will not be included in filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
+    * `param_duration`: `float`, duration of the segments into which to slice the data for processing, in seconds. Default is 5.
+    * `param_min_count`: `int`, minimum number of times a channel must show up as bad in a chunk. Default is 5.
+    * `param_limit`: `float`, detection limit for noisy segments. Default is 7.
+    * `param_h_freq`: `float`, optional the cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. Default is 40.
+    * `param_origin`: `str`, origin of internal and external multipolar moment space in meters. Default is 'auto'. 
+    * `param_return_scores`: `bool`, if True, return a dictionary with scoring information for each evaluated segment of the data. Default in MNE is False but here it must be True.
+    * `param_int_order`: `int`, order of internal component of spherical expansion. Default is 8.
+    * `param_ext_order`: `int`, order of external component of spherical expansion. Default is 3.
+    * `param_coord_frame`: `str`, the coordinate frame that the origin is specified in, either 'meg' or 'head'. Default is 'head'.
+    * `param_regularize`: `str`, optional, the destination location for the head, either 'in' or `None`. Default is 'in'.
+    * `param_ignore_ref`: `bool`, if `True`, do not include reference channels in compensation. Default is `False`.
+    * `param_bad_condition`: `str`, how to deal with ill-conditioned SSS matrices, either 'error', 'warning', 'info' , 'ignore'. Default is 'error'.
+    * `param_mag_scale`: `float`, the magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as the gradiometers, as they have different units (T vs T/m). Default is 100.
+    * `param_skip_by_annotation`, `str` or `list of str`, any annotation segment that begins with the given string will not be included in filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
       Default is `["edge, "bad acq skip"]`.
       
 This list along with the default values correspond to the parameters of MNE Python version 0.22.0 find_bad_channels_maxwell function (except for return_scores).
