@@ -18,5 +18,6 @@
     "param_bad_condition": "error",
     "param_mag_scale": 100.0,
     "param_skip_by_annotation": ["edge", "bad_acq_skip"],
-    "param_h_freq": 40.0
+    "param_h_freq": 40.0,
+	"param_extended_proj": []
 }

@@ -16,7 +16,7 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
                       param_return_scores, param_limit, param_duration, param_min_count,
                       param_int_order, param_ext_order, param_coord_frame,
                       param_regularize, param_ignore_ref, param_bad_condition, 
-                      param_skip_by_annotation, param_mag_scale):
+                      param_skip_by_annotation, param_mag_scale, param_extended_proj):
     """Detect bad channels and save file with bad channels marked as bad in info.
 
     Parameters
@@ -64,6 +64,8 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     param_mag_scale: float or str
         The magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as
         the gradiometers (default 100.), as they have different units (T vs T/m). Can be "auto."
+    param_extended_proj: list
+        The empty-room projection vectors used to extend the external SSS basis (i.e., use eSSS). Default is an empty list.
 
     Returns
     -------
@@ -96,7 +98,8 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
                                                                                              ignore_ref=param_ignore_ref,
                                                                                              bad_condition=param_bad_condition,
                                                                                              skip_by_annotation=param_skip_by_annotation,
-                                                                                             mag_scale=param_mag_scale)
+                                                                                             mag_scale=param_mag_scale,
+                                                                                             extended_proj=param_extended_proj)
     del raw_check
 
     # Add bad channels in raw.info
@@ -351,6 +354,10 @@ def main():
         value_error_message = f'param_return_scores must be True.'
         raise ValueError(value_error_message) 
 
+    # Check if param_extended_proj parameter is empty
+    if config['param_extended_proj'] == '[]':
+        config['param_extended_proj'] = [] # required to run a pipeline on BL
+
     # Deal with param_origin parameter
 
     # Convert origin parameter into array when the app is run locally
@@ -364,7 +371,7 @@ def main():
 
     # Raise an error if param origin is not an array of shape 3
     if config['param_origin'] != "auto" and config['param_origin'].shape[0] != 3:
-        value_error_message = f"Origin parameter must contined three elements."
+        value_error_message = f"Origin parameter must contain three elements."
         raise ValueError(value_error_message)
 
     # Deal with param_mag_scale parameter
