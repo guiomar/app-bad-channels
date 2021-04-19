@@ -355,7 +355,6 @@ def main():
     # Convertorigin parameter into array when the app runs locally
     if isinstance(config['param_origin'], list):
        config['param_origin'] = np.array(config['param_origin'])
-       print(config['param_origin'])
 
     # Define kwargs
     # Delete keys values in config.json when this app is executed on Brainlife

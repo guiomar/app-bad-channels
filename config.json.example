@@ -5,7 +5,7 @@
     "headshape": "",
     "destination": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/mean_tm-raw.fif",
 	"events": "/network/lustre/iss01/home/aurore.bussalb/Repositories/app-create-events/out_dir_create_events/events.tsv",
-    "param_origin": [0, 0, 0],
+    "param_origin": [0, 0, 0.5],
     "param_return_scores": true,
     "param_limit": 7,
     "param_duration": 5,
