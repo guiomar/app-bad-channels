@@ -37,29 +37,30 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
         (0., 0., 0.) when coord_frame='meg', and a head-digitization-based origin fit using fit_sphere_to_headshape()
         when coord_frame='head'.
     param_return_scores: bool
-        If True, return a dictionary with scoring information for each evaluated segment of the data. 
+        If True, return a dictionary with scoring information for each evaluated segment of the data. Default is True.
     param_limit: float
-        Detection limit for noisy segments (default is 7.). Smaller values will find more bad channels at increased
-        risk of including good ones.
+        Detection limit for noisy segments. Smaller values will find more bad channels at increased
+        risk of including good ones. Default is 7.
     param_duration: float
-        Duration of the segments into which to slice the data for processing, in seconds (default is 5).
+        Duration of the segments into which to slice the data for processing, in seconds. Default is 5.
     param_min_count: int
-        Minimum number of times a channel must show up as bad in a chunk (default is 5).
+        Minimum number of times a channel must show up as bad in a chunk. Default is 5.
     param_int_order: int
-        Order of internal component of spherical expansion.
+        Order of internal component of spherical expansion. Default is 8.
     param_ext_order: int
-        Order of external component of spherical expansion.
+        Order of external component of spherical expansion. Default is 3.
     param_coord_frame: str
-        The coordinate frame that the origin is specified in, either 'meg' or 'head'.
+        The coordinate frame that the origin is specified in, either 'meg' or 'head' (default).
     param_regularize: str or None
-        Basis regularization type, must be “in” or None.
+        Basis regularization type, must be “in” (default) or None.
     param_ignore_ref: bool
-        If True, do not include reference channels in compensation.
+        If True, do not include reference channels in compensation. Default is False.
     param_bad_condition: str
         How to deal with ill-conditioned SSS matrices. Can be “error” (default), “warning”, “info”, or “ignore”.
     param_skip_by_annotation: str or list of str
         If a string (or list of str), any annotation segment that begins with the given string will not be included in
         filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
+        Default is ['edge', 'bad_acq_skip']. 
     param_mag_scale: float
         The magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as
         the gradiometers (default 100.), as they have different units (T vs T/m).

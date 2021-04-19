@@ -60,7 +60,7 @@ brainlife.io is publicly funded and for the sustainability of the project it is 
 
 ### On Brainlife.io
 
-This App is still private on  Brainlife.io.
+This App is still private on Brainlife.io.
 
 ### Running Locally (on your machine)
 
