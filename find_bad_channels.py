@@ -61,9 +61,9 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
         If a string (or list of str), any annotation segment that begins with the given string will not be included in
         filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
         Default is ['edge', 'bad_acq_skip']. 
-    param_mag_scale: float
+    param_mag_scale: float or str
         The magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as
-        the gradiometers (default 100.), as they have different units (T vs T/m).
+        the gradiometers (default 100.), as they have different units (T vs T/m). Can be "auto."
 
     Returns
     -------

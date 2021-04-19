@@ -26,7 +26,8 @@ Repository of a Brainlife App that detects bad channels in MEG recordings using 
     * `param_regularize`: `str`, optional, the destination location for the head, either 'in' or `None`. Default is 'in'.
     * `param_ignore_ref`: `bool`, if `True`, do not include reference channels in compensation. Default is `False`.
     * `param_bad_condition`: `str`, how to deal with ill-conditioned SSS matrices, either 'error', 'warning', 'info' , 'ignore'. Default is 'error'.
-    * `param_mag_scale`: `float`, the magenetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as the gradiometers, as they have different units (T vs T/m). Default is 100.
+    * `param_mag_scale`: `float` or `str`, the magnetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as the gradiometers, as they have different units (T vs T/m). Can be "auto". 
+Default is 100. 
     * `param_skip_by_annotation`, `str` or `list of str`, any annotation segment that begins with the given string will not be included in filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
       Default is `["edge, "bad acq skip"]`.
       
