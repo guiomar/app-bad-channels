@@ -18,7 +18,7 @@ Repository of a Brainlife App that detects bad channels in MEG recordings using 
     * `param_min_count`: `int`, minimum number of times a channel must show up as bad in a chunk. Default is 5.
     * `param_limit`: `float`, detection limit for noisy segments. Default is 7.
     * `param_h_freq`: `float`, optional the cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. Default is 40.
-    * `param_origin`: `str`, origin of internal and external multipolar moment space in meters. Default is 'auto'. 
+    * `param_origin`: `str` or list of three `float`, origin of internal and external multipolar moment space in meters. Default is 'auto'. 
     * `param_return_scores`: `bool`, if True, return a dictionary with scoring information for each evaluated segment of the data. Default in MNE is False but here it must be True.
     * `param_int_order`: `int`, order of internal component of spherical expansion. Default is 8.
     * `param_ext_order`: `int`, order of external component of spherical expansion. Default is 3.
@@ -60,7 +60,7 @@ brainlife.io is publicly funded and for the sustainability of the project it is 
 
 ### On Brainlife.io
 
-This App has not yet been registered in Brainlife.io.
+This App is still private on  Brainlife.io.
 
 ### Running Locally (on your machine)
 

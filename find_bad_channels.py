@@ -352,9 +352,15 @@ def main():
 
     # Deal with param_origin parameter
 
-    # Convertorigin parameter into array when the app runs locally
+    # Convert origin parameter into array when the app is run locally
     if isinstance(config['param_origin'], list):
        config['param_origin'] = np.array(config['param_origin'])
+
+    # Convert origin parameter into array when the app is run on BL
+    if isinstance(config['param_origin'], str):
+       config['param_origin'] = np.array(config['param_origin'])
+       param_origin = list(map(float, config['param_origin'].split(', ')))
+       config['param_origin'] = np.array(param_origin)
 
     # Define kwargs
     # Delete keys values in config.json when this app is executed on Brainlife
