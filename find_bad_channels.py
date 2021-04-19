@@ -367,6 +367,10 @@ def main():
         value_error_message = f"Origin parameter must contined three elements."
         raise ValueError(value_error_message)
 
+    # Deal with param_mag_scale parameter
+    if isinstance(config['param_origin'], str) and config['param_mag_scale'] != "auto":
+        config['param_mag_scale'] = float(config['param_mag_scale'])
+
     # Define kwargs
     # Delete keys values in config.json when this app is executed on Brainlife
     if '_app' and '_tid' and '_inputs' and '_outputs' in config.keys():
