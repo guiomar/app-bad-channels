@@ -357,10 +357,15 @@ def main():
        config['param_origin'] = np.array(config['param_origin'])
 
     # Convert origin parameter into array when the app is run on BL
-    if isinstance(config['param_origin'], str):
+    if isinstance(config['param_origin'], str) and config['param_origin'] != "auto":
        config['param_origin'] = np.array(config['param_origin'])
        param_origin = list(map(float, config['param_origin'].split(', ')))
        config['param_origin'] = np.array(param_origin)
+
+    # Raise an error if param origin is not an array of shape 3
+    if config['param_origin'] != "auto" and config['param_origin'].shape[0] != 3:
+        value_error_message = f"Origin parameter must contined three elements."
+        raise ValueError(value_error_message)
 
     # Define kwargs
     # Delete keys values in config.json when this app is executed on Brainlife
