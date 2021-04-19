@@ -5,7 +5,7 @@
     "headshape": "",
     "destination": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/mean_tm-raw.fif",
 	"events": "/network/lustre/iss01/home/aurore.bussalb/Repositories/app-create-events/out_dir_create_events/events.tsv",
-    "param_origin": 100.0,
+    "param_origin": "auto",
     "param_return_scores": true,
     "param_limit": 7,
     "param_duration": 5,
@@ -16,7 +16,7 @@
     "param_regularize": "in",
     "param_ignore_ref": false,
     "param_bad_condition": "error",
-    "param_mag_scale": "auto",
+    "param_mag_scale": 100.0,
     "param_skip_by_annotation": ["edge", "bad_acq_skip"],
     "param_h_freq": 40.0
 }
