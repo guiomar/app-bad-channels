@@ -358,7 +358,6 @@ def main():
 
     # Convert origin parameter into array when the app is run on BL
     if isinstance(config['param_origin'], str) and config['param_origin'] != "auto":
-       config['param_origin'] = np.array(config['param_origin'])
        param_origin = list(map(float, config['param_origin'].split(', ')))
        config['param_origin'] = np.array(param_origin)
 
