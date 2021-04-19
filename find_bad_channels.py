@@ -32,7 +32,7 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     param_h_freq: float or None
         The cutoff frequency (in Hz) of the low-pass filter that will be applied before processing the data. 
         This defaults to 40., which should provide similar results to MaxFilter. 
-    param_origin: str
+    param_origin: str or array_like, shape (3,)
         Origin of internal and external multipolar moment space in meters. The default is 'auto', which means
         (0., 0., 0.) when coord_frame='meg', and a head-digitization-based origin fit using fit_sphere_to_headshape()
         when coord_frame='head'.
@@ -349,6 +349,12 @@ def main():
     if config['param_return_scores'] is not True:
         value_error_message = f'param_return_scores must be True.'
         raise ValueError(value_error_message) 
+
+    # Deal with param_origin parameter
+
+    # Convertorigin parameter into array when the app runs locally
+    if isinstance(config['param_origin'], list):
+       config['param_origin'] = np.array(config['param_origin'])
 
     # Define kwargs
     # Delete keys values in config.json when this app is executed on Brainlife
