@@ -344,6 +344,10 @@ def main():
     tmp = dict((k, None) for k, v in config.items() if v == "")
     config.update(tmp)
 
+    # Check if param_extended_proj parameter is an empty list string
+    if config['param_extended_proj'] == '[]':
+        config['param_extended_proj'] = [] # required to run a pipeline on BL
+
     # Display a warning if h_freq is None
     if config['param_h_freq'] is None:
         user_warning_message = f'No low-pass filter will be applied to the data. ' \
@@ -357,11 +361,7 @@ def main():
         value_error_message = f'param_return_scores must be True.'
         raise ValueError(value_error_message) 
 
-    # Check if param_extended_proj parameter is an empty list string
-    if config['param_extended_proj'] == '[]':
-        config['param_extended_proj'] = [] # required to run a pipeline on BL
-
-    ## Convert parameters    
+    ## Convert parameters ##   
 
     # Deal with param_origin parameter #
     # Convert origin parameter into array when the app is run locally
@@ -383,15 +383,17 @@ def main():
     if isinstance(config['param_mag_scale'], str) and config['param_mag_scale'] != "auto":
         config['param_mag_scale'] = float(config['param_mag_scale'])
 
-    # Deal with skip_by_annotation parameter
+    # Deal with skip_by_annotation parameter #
     # Convert param_mag_scale into a list of strings when the app runs on BL
     skip_by_an = config['param_skip_by_annotation']
-    if isinstance(skip_by_an, str) and skip_by_an.find("[") != -1:
-        skip_by_an = skip_by_an.replace('[', '')
-        skip_by_an= skip_by_an.replace(']', '')
-        skip_by_an = skip_by_an.replace("'", '')
-        skip_by_an = list(map(str, skip_by_an.split(', ')))
-        config['param_skip_by_annotation'] = skip_by_an 
+    if skip_by_an = "[]":
+        skip_by_an = []
+    elif isinstance(skip_by_an, str) and skip_by_an.find("[") != -1 and skip_by_an != "[]": 
+        skip_by_an = picks.replace('[', '')
+        skip_by_an = picks.replace(']', '')
+        skip_by_an = picks.replace("'", '')
+        skip_by_an = list(map(str, skip_by_an.split(', ')))         
+    config['param_skip_by_annotation'] = skip_by_an 
     print(config['param_skip_by_annotation'])
     print(config['param_skip_by_annotation'][0])
 
@@ -400,10 +402,6 @@ def main():
     if '_app' and '_tid' and '_inputs' and '_outputs' in config.keys():
         del config['_app'], config['_tid'], config['_inputs'], config['_outputs'] 
     kwargs = config  
-
-    print(config['param_skip_by_annotation'])
-    print(config['param_skip_by_annotation'][0])
-
 
     # Apply find bad channels     
     raw_copy = raw.copy()
