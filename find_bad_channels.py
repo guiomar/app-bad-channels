@@ -391,11 +391,8 @@ def main():
     elif isinstance(skip_by_an, str) and skip_by_an.find("[") != -1 and skip_by_an != "[]": 
         skip_by_an = skip_by_an.replace('[', '')
         skip_by_an = skip_by_an.replace(']', '')
-#        skip_by_an = skip_by_an.replace("'", '')
         skip_by_an = list(map(str, skip_by_an.split(', ')))         
     config['param_skip_by_annotation'] = skip_by_an 
-    print(config['param_skip_by_annotation'])
-    print(config['param_skip_by_annotation'][0])
 
     # Define kwargs
     # Delete keys values in config.json when this app is executed on Brainlife
