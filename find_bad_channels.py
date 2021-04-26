@@ -391,7 +391,7 @@ def main():
     elif isinstance(skip_by_an, str) and skip_by_an.find("[") != -1 and skip_by_an != "[]": 
         skip_by_an = skip_by_an.replace('[', '')
         skip_by_an = skip_by_an.replace(']', '')
-        skip_by_an = skip_by_an.replace("'", '')
+#        skip_by_an = skip_by_an.replace("'", '')
         skip_by_an = list(map(str, skip_by_an.split(', ')))         
     config['param_skip_by_annotation'] = skip_by_an 
     print(config['param_skip_by_annotation'])
