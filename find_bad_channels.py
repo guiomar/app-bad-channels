@@ -386,7 +386,7 @@ def main():
     # Deal with skip_by_annotation parameter #
     # Convert param_mag_scale into a list of strings when the app runs on BL
     skip_by_an = config['param_skip_by_annotation']
-    if skip_by_an = "[]":
+    if skip_by_an == "[]":
         skip_by_an = []
     elif isinstance(skip_by_an, str) and skip_by_an.find("[") != -1 and skip_by_an != "[]": 
         skip_by_an = picks.replace('[', '')
