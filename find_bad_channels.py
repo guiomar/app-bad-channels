@@ -340,9 +340,12 @@ def main():
     if os.path.exists(events_file) is True:
         shutil.copy2(events_file, 'out_dir_bad_channels/events.tsv')  # required to run a pipeline on BL
 
+    # Convert all "" into None when the App runs on BL
+    tmp = dict((k, None) for k, v in config.items() if v == "")
+    config.update(tmp)
+
     # Display a warning if h_freq is None
-    if config['param_h_freq'] == "":
-        config['param_h_freq'] = None
+    if config['param_h_freq'] is None:
         user_warning_message = f'No low-pass filter will be applied to the data. ' \
                                f'Make sure line noise and cHPI artifacts were removed before finding ' \
                                f'bad channels.'
@@ -354,12 +357,13 @@ def main():
         value_error_message = f'param_return_scores must be True.'
         raise ValueError(value_error_message) 
 
-    # Check if param_extended_proj parameter is empty
+    # Check if param_extended_proj parameter is an empty list string
     if config['param_extended_proj'] == '[]':
         config['param_extended_proj'] = [] # required to run a pipeline on BL
 
-    # Deal with param_origin parameter
+    ## Convert parameters    
 
+    # Deal with param_origin parameter #
     # Convert origin parameter into array when the app is run locally
     if isinstance(config['param_origin'], list):
        config['param_origin'] = np.array(config['param_origin'])
@@ -374,11 +378,22 @@ def main():
         value_error_message = f"Origin parameter must contain three elements."
         raise ValueError(value_error_message)
 
-    # Deal with param_mag_scale parameter
-
-    # When it is run on BL
+    # Deal with param_mag_scale parameter #
+    # Convert param_mag_scale into a float when not "auto" when the app runs on BL
     if isinstance(config['param_mag_scale'], str) and config['param_mag_scale'] != "auto":
         config['param_mag_scale'] = float(config['param_mag_scale'])
+
+    # Deal with skip_by_annotation parameter
+    # Convert param_mag_scale into a list of strings when the app runs on BL
+    skip_by_an = config['param_skip_by_annotation']
+    if isinstance(skip_by_an, str) and skip_by_an.find("[") != -1:
+        skip_by_an = skip_by_an.replace('[', '')
+        skip_by_an= skip_by_an.replace(']', '')
+        skip_by_an = skip_by_an.replace("'", '')
+        skip_by_an = list(map(str, skip_by_an.split(', ')))
+        config['param_skip_by_annotation'] = skip_by_an 
+    print(config['param_skip_by_annotation'])
+    print(config['param_skip_by_annotation'][0])
 
     # Define kwargs
     # Delete keys values in config.json when this app is executed on Brainlife
