@@ -375,7 +375,9 @@ def main():
         raise ValueError(value_error_message)
 
     # Deal with param_mag_scale parameter
-    if isinstance(config['param_origin'], str) and config['param_mag_scale'] != "auto":
+
+    # When it is run on BL
+    if isinstance(config['param_mag_scale'], str) and config['param_mag_scale'] != "auto":
         config['param_mag_scale'] = float(config['param_mag_scale'])
 
     # Define kwargs
@@ -383,6 +385,10 @@ def main():
     if '_app' and '_tid' and '_inputs' and '_outputs' in config.keys():
         del config['_app'], config['_tid'], config['_inputs'], config['_outputs'] 
     kwargs = config  
+
+    print(config['param_skip_by_annotation'])
+    print(config['param_skip_by_annotation'][0])
+
 
     # Apply find bad channels     
     raw_copy = raw.copy()
