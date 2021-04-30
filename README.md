@@ -5,7 +5,7 @@ Repository of a Brainlife App that detects bad channels in MEG recordings using 
 # app-bad-channels documentation
 
 1) Detect bad channels thanks to SSS without removing external components
-2) Prevent artifacts in bad channels from spreading when MaxFilter is applied   
+2) Prevent artifacts in bad channels from spreading when MaxFilter is applied
 3) Input files are:
     * a MEG file in `.fif` format,
     * an optional fine calibration file in `.dat`,
@@ -29,11 +29,10 @@ Repository of a Brainlife App that detects bad channels in MEG recordings using 
     * `param_mag_scale`: `float` or `str`, the magnetometer scale-factor used to bring the magnetometers to approximately the same order of magnitude as the gradiometers, as they have different units (T vs T/m). Can be "auto". 
 Default is 100. 
     * `param_skip_by_annotation`, `str` or `list of str`, any annotation segment that begins with the given string will not be included in filtering, and segments on either side of the given excluded annotated segment will be filtered separately.
-      Default is `["edge, "bad acq skip"]`.
+Default is `["edge, "bad acq skip"]`.
     * `param_extended_proj`: `list`, the empty-room projection vectors used to extend the external SSS basis (i.e., use eSSS). Default is an empty list.
       
 This list along with the default values correspond to the parameters of MNE Python version 0.22.0 find_bad_channels_maxwell function (except for return_scores).
-N.B: one parameter (`extended_proj`) is not included here and so is set to its default value defined by MNE Python, which is an empty list.
 
 5) Ouput files are:
     * a `.fif` MEG file with bad channels marked as "bad" in its `mne.info`,

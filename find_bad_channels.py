@@ -79,6 +79,16 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
         A dictionary with information produced by the scoring algorithms.
     """
 
+    # Check if Maxwell Filter was already applied on the data
+    if raw.info['proc_history']:
+        sss_info = raw.info['proc_history'][0]['max_info']['sss_info']
+        tsss_info = raw.info['proc_history'][0]['max_info']['max_st']
+        if bool(sss_info) or bool(tsss_info) is True:
+            value_error_message = f'You cannot use Maxwell filtering to detect bad channels if data have been already ' \
+                                  f'processed with Maxwell filtering.'
+            # Raise exception
+            raise ValueError(value_error_message)
+
     # Find bad channels
     raw_check = raw.copy()
     auto_noisy_chs, auto_flat_chs, auto_scores = mne.preprocessing.find_bad_channels_maxwell(raw_check,
@@ -113,15 +123,63 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
 
 
 def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_scores, auto_noisy_chs, auto_flat_chs,
-                     data_file_before):
+                     data_file_before, report_cross_talk_file, report_calibration_file, report_head_pos_file,
+                     param_h_freq, param_origin,  
+                     param_return_scores, param_limit, param_duration, param_min_count,
+                     param_int_order, param_ext_order, param_coord_frame,
+                     param_regularize, param_ignore_ref, param_bad_condition, 
+                     param_skip_by_annotation, param_mag_scale, param_extended_proj):
     # Generate a report
 
-    # Create instance of mne.Report
+    # Create instance of mne.Report # 
     report = mne.Report(title='Results identification of bad channels', verbose=True)
 
-    # Plot diagnostic figures
+    ## Give some info about the file before preprocessing ## 
+    bad_channels = raw_before_preprocessing.info['bads']
+    sampling_frequency = raw_before_preprocessing.info['sfreq']
+    highpass = raw_before_preprocessing.info['highpass']
+    lowpass = raw_before_preprocessing.info['lowpass']
 
-    # Scores for automated noisy channels detection
+    # Put this info in html format # 
+    # Info on data
+    html_text_info = f"""<html>
+
+    <head>
+        <style type="text/css">
+            table {{ border-collapse: collapse;}}
+            td {{ text-align: center; border: 1px solid #000000; border-style: dashed; font-size: 15px; }}
+        </style>
+    </head>
+
+    <body>
+        <table width="50%" height="80%" border="2px">
+            <tr>
+                <td>Input file: {data_file_before}</td>
+            </tr>
+            <tr>
+                <td>Bad channels before automated detection: {bad_channels}</td>
+            </tr>
+            <tr>
+                <td>Sampling frequency: {sampling_frequency}Hz</td>
+            </tr>
+            <tr>
+                <td>Highpass: {highpass}Hz</td>
+            </tr>
+            <tr>
+                <td>Lowpass: {lowpass}Hz</td>
+            </tr>
+        </table>
+    </body>
+
+    </html>"""
+
+    # Add html to reports
+    report.add_htmls_to_section(html_text_info, captions='MEG recording features', section='Data info', replace=False)
+
+   
+    ## Plot diagnostic figures ##
+
+    # Scores for automated noisy channels detection #
     # Only select the data for gradiometer channels
     ch_type = 'grad'
     ch_subset = auto_scores['ch_types'] == ch_type
@@ -162,7 +220,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
                                comments=f'Noisy channels detected (grad and mag): {auto_noisy_chs}',
                                section='Diagnostic figures')
 
-    # Scores for automated flat channels detection
+    # Scores for automated flat channels detection #
     # Only select the data for gradiometer channels
     scores = auto_scores['scores_flat'][ch_subset]
     limits = auto_scores['limits_flat'][ch_subset]
@@ -193,7 +251,154 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
                                comments=f'Flat channels detected (grad and mag): {auto_flat_chs}',
                                section='Diagnostic figures')
 
-    # If they exist, plot bad channels in time domain
+    
+    ## Plot PSD ##
+
+    # Select only meg signals #
+    raw_before_preprocessing.pick_types(meg=True)
+    raw_after_preprocessing.pick_types(meg=True)
+
+    ## Plot PSD before and after flat channels detection ##
+
+    # Select good channels 
+    channels = raw_after_preprocessing.info['ch_names']
+
+    # Define list of good and flat channels
+    good_channels_and_flats = auto_flat_chs + channels
+    raw_flat_channels_before_preprocessing = raw_before_preprocessing.copy()
+    raw_flat_channels_before_preprocessing = raw_flat_channels_before_preprocessing.pick(picks=good_channels_and_flats)
+
+    # Plot PSD of gradiometers #
+
+    # Select only gradiometers for data before preprocessing
+    raw_select_grad_before_preprocessing = raw_flat_channels_before_preprocessing.copy()
+    raw_grad_before_preprocessing = raw_select_grad_before_preprocessing.pick(picks='grad')
+    grad_channels = raw_grad_before_preprocessing.info['ch_names'] 
+
+    # Select only gradiometers for data after preprocessing
+    raw_select_grad_after_preprocessing = raw_after_preprocessing.copy()
+    raw_grad_after_preprocessing = raw_select_grad_after_preprocessing.pick(picks='grad')
+
+    # Plot PSD for grad + flat grad
+    fig_raw_psd_all_before_grad = mne.viz.plot_raw_psd(raw_grad_before_preprocessing, picks=grad_channels)
+
+    # Add figures to report
+    captions_fig_raw_psd_all_before_grad = f'Power spectral density of MEG signals including the automated ' \
+                                           f'detected flat channels (Gradiometers)'
+    report.add_figs_to_section(figs=fig_raw_psd_all_before_grad,
+                               captions=captions_fig_raw_psd_all_before_grad,
+                               comments='Noisy channels are not included',
+                               section='Power Spectral Density for Gradiometers')
+
+
+    ## Plot PSD before and after noisy channels detection ##
+
+    # Define list of good and flat channels
+    good_channels_and_noisy = auto_noisy_chs + channels
+    raw_noisy_channels_before_preprocessing = raw_before_preprocessing.copy()
+    raw_noisy_channels_before_preprocessing = raw_noisy_channels_before_preprocessing.pick(picks=good_channels_and_noisy)
+
+    # Plot PSD of gradiometers #
+
+    # Select only gradiometers for data before preprocessing
+    raw_select_grad_before_preprocessing = raw_noisy_channels_before_preprocessing.copy()
+    raw_grad_before_preprocessing = raw_select_grad_before_preprocessing.pick(picks='grad')
+    grad_channels = raw_grad_before_preprocessing.info['ch_names'] 
+
+    # Select only gradiometers for data after preprocessing
+    raw_grad_after_preprocessing = raw_select_grad_after_preprocessing.pick(picks='grad')
+
+    # Plot PSD for grad + flat grad
+    fig_raw_psd_all_before_grad = mne.viz.plot_raw_psd(raw_grad_before_preprocessing, picks=grad_channels)
+
+    # Add figures to report
+    captions_fig_raw_psd_all_before_grad = f'Power spectral density of MEG signals including the automated ' \
+                                           f'detected noisy channels (Gradiometers)'
+    report.add_figs_to_section(figs=fig_raw_psd_all_before_grad,
+                               captions=captions_fig_raw_psd_all_before_grad,
+                               comments='Flat channels are not included',
+                               section='Power Spectral Density for Gradiometers')
+
+    # Plot PSD of grad excluding flat grads # 
+    fig_raw_psd_all_after_grad = mne.viz.plot_raw_psd(raw_grad_after_preprocessing, picks='meg')
+    captions_fig_raw_psd_all_after_grad = f'Power spectral density of MEG signals without the automated ' \
+                                          f'detected noisy and flat channels (Gradiometers)'
+    report.add_figs_to_section(figs=fig_raw_psd_all_after_grad,
+                               captions=captions_fig_raw_psd_all_after_grad,
+                               section='Power Spectral Density for Gradiometers')
+
+    ## Plot PSD before and after flat channels detection ##
+
+    # Plot PSD of magnetometers #
+
+    # Select only magnetometers for data before preprocessing
+    raw_select_mag_before_preprocessing = raw_flat_channels_before_preprocessing.copy()
+    raw_mag_before_preprocessing = raw_select_mag_before_preprocessing.pick(picks='mag')
+    mag_channels = raw_mag_before_preprocessing.info['ch_names'] 
+
+    # Select only gradiometers for data after preprocessing
+    raw_select_mag_after_preprocessing = raw_after_preprocessing.copy()
+    raw_mag_after_preprocessing = raw_select_mag_after_preprocessing.pick(picks='mag')
+
+    # Plot PSD for mag + flat grad
+    fig_raw_psd_all_before_mag = mne.viz.plot_raw_psd(raw_mag_before_preprocessing, picks=mag_channels)
+
+    # Add figures to report
+    captions_fig_raw_psd_all_before_mag = f'Power spectral density of MEG signals including the automated ' \
+                                          f'detected flat channels (Magnetometers)'
+    report.add_figs_to_section(figs=fig_raw_psd_all_before_mag,
+                               captions=captions_fig_raw_psd_all_before_mag,
+                               comments='Noisy channels are not included',
+                               section='Power Spectral Density for Magnetometers')
+
+
+    ## Plot PSD before and after noisy channels detection ##
+
+    # Plot PSD of magnetometers #
+
+    # Select only magnetometers for data before preprocessing
+    raw_select_mag_before_preprocessing = raw_noisy_channels_before_preprocessing.copy()
+    raw_mag_before_preprocessing = raw_select_mag_before_preprocessing.pick(picks='mag')
+    mag_channels = raw_mag_before_preprocessing.info['ch_names'] 
+
+    # Select only magnetometers for data after preprocessing
+    raw_mag_after_preprocessing = raw_select_mag_after_preprocessing.pick(picks='mag')
+
+    # Plot PSD for mag + noisy mag
+    fig_raw_psd_all_before_mag = mne.viz.plot_raw_psd(raw_mag_before_preprocessing, picks=mag_channels)
+
+    # Add figures to report
+    captions_fig_raw_psd_all_before_grad = f'Power spectral density of MEG signals including the automated ' \
+                                           f'detected noisy channels (Magnetometers)'
+
+    report.add_figs_to_section(figs=fig_raw_psd_all_before_mag,
+                               captions=captions_fig_raw_psd_all_before_mag,
+                               comments='Flat channels are not included',
+                               section='Power Spectral Density for Magnetometers')
+
+
+    # Plot PSD of mag excluding noisy mag # 
+    fig_raw_psd_all_after_mag = mne.viz.plot_raw_psd(raw_mag_after_preprocessing, picks='meg')
+    captions_fig_raw_psd_all_after_mag = f'Power spectral density of MEGsignals without the automated ' \
+                                          f'detected noisy and flat channels (Magnetometers)'
+
+    report.add_figs_to_section(figs=fig_raw_psd_all_after_mag,
+                               captions=captions_fig_raw_psd_all_after_mag,
+                               section='Power Spectral Density for Magnetometers')
+
+    # Delete useless copies
+    del raw_select_grad_before_preprocessing
+    del raw_select_grad_after_preprocessing
+    del raw_grad_before_preprocessing 
+    del raw_grad_after_preprocessing 
+
+    del raw_select_mag_before_preprocessing
+    del raw_select_mag_after_preprocessing
+    del raw_mag_before_preprocessing 
+    del raw_mag_after_preprocessing 
+
+
+    ## If they exist, plot bad channels in time domain ##
     # Noisy channels
     if auto_noisy_chs:
 
@@ -229,35 +434,11 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
                                                                    f'detected flat channels',
                                    comments='The flat channels are in gray.', section='Time domain')
 
-    # Plot PSD of all channels including bads
-    raw_before_preprocessing.pick_types(meg=True)
-    raw_after_preprocessing.pick_types(meg=True)
-    bads = auto_flat_chs + auto_noisy_chs
-    channels = raw_after_preprocessing.info['ch_names']
-    all_channels = bads + channels
-    fig_raw_psd_all_before = mne.viz.plot_raw_psd(raw_before_preprocessing, picks=all_channels)
 
-    # Plot PSD of all channels excluding bads
-    fig_raw_psd_all_after = mne.viz.plot_raw_psd(raw_after_preprocessing, picks='meg')
+    ## Values of the parameters of the App ## 
 
-    # Add figures to report
-    captions_fig_raw_psd_all_before = f'Power spectral density of MEG signals including the automated ' \
-                                      f'detected noisy channels'
-    captions_fig_raw_psd_all_after = f'Power spectral density of grad signals without the automated ' \
-                                     f'detected noisy channels'
-    report.add_figs_to_section(figs=[fig_raw_psd_all_before, fig_raw_psd_all_after],
-                               captions=[captions_fig_raw_psd_all_before, captions_fig_raw_psd_all_after],
-                               section='Power Spectral Density')
-
-    # Give some info about the file before preprocessing
-    bad_channels = raw_before_preprocessing.info['bads']
-    sampling_frequency = raw_before_preprocessing.info['sfreq']
-    highpass = raw_before_preprocessing.info['highpass']
-    lowpass = raw_before_preprocessing.info['lowpass']
-
-    # Put this info in html format
-    # Info on data
-    html_text_info = f"""<html>
+    # Put this info in html format # 
+    html_text_parameters = f"""<html>
 
     <head>
         <style type="text/css">
@@ -269,19 +450,55 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
     <body>
         <table width="50%" height="80%" border="2px">
             <tr>
-                <td>Input file: {data_file_before}</td>
+                <td>Cross-talk file: {report_cross_talk_file}</td>
             </tr>
             <tr>
-                <td>Bad channels before automated detection: {bad_channels}</td>
+                <td>Calibration file: {report_calibration_file}</td>
             </tr>
             <tr>
-                <td>Sampling frequency: {sampling_frequency}Hz</td>
+                <td>Headshape file: {report_head_pos_file}</td>
             </tr>
             <tr>
-                <td>Highpass: {highpass}Hz</td>
+                <td>Origin: {param_origin}</td>
             </tr>
             <tr>
-                <td>Lowpass: {lowpass}Hz</td>
+                <td>Limit: {param_limit} noisy segments</td>
+            </tr>
+            <tr>
+                <td>Duration: {param_duration}s</td>
+            </tr>
+            <tr>
+                <td>Min count: {param_min_count} times</td>
+            </tr>
+            <tr>
+                <td>Order of internal component of sherical expansion: {param_int_order}</td>
+            </tr>
+            <tr>
+                <td>Order of external component of sherical expansion: {param_ext_order}</td>
+            </tr>
+            <tr>
+                <td>Coordinate frame: {param_coord_frame}</td>
+            </tr>
+            <tr>
+                <td>Regularize: {param_regularize}</td>
+            </tr>
+            <tr>
+                <td>Ignore reference channel: {param_ignore_ref}</td>
+            </tr>
+            <tr>
+                <td>Bad condition: {param_bad_condition}</td>
+            </tr>
+            <tr>
+                <td>Magnetomer scale-factor: {param_mag_scale}</td>
+            </tr>
+            <tr>
+                <td>Skip by annotation: {param_skip_by_annotation}</td>
+            </tr>
+            <tr>
+                <td>Cutoff frequency of the low-pass filter: {param_h_freq}Hz</td>
+            </tr>
+            <tr>
+                <td>Empty-room projection vectors: {param_extended_proj}</td>
             </tr>
         </table>
     </body>
@@ -289,7 +506,9 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
     </html>"""
 
     # Add html to reports
-    report.add_htmls_to_section(html_text_info, captions='MEG recording features', section='Info', replace=False)
+    report.add_htmls_to_section(html_text_parameters, captions='Values of the parameters of the App', 
+                                section='Parameters of the App', replace=False)
+
 
     # Save report
     report.save('out_dir_report/report_bad_channels.html', overwrite=True)
@@ -315,15 +534,19 @@ def main():
     cross_talk_file = config.pop('crosstalk')
     if os.path.exists(cross_talk_file) is False:
         cross_talk_file = None
+        report_cross_talk_file = 'No cross-talk file provided'
     else:
         shutil.copy2(cross_talk_file, 'out_dir_bad_channels/crosstalk_meg.fif')  # required to run a pipeline on BL
+        report_cross_talk_file = 'Cross-talk file provided'
 
     # Read the calibration file
     calibration_file = config.pop('calibration')
     if os.path.exists(calibration_file) is False:
         calibration_file = None
+        report_calibration_file = 'No calibration file provided'
     else:
         shutil.copy2(calibration_file, 'out_dir_bad_channels/calibration_meg.dat')  # required to run a pipeline on BL
+        report_calibration_file = 'Calibration file provided'
 
     # Read the destination file
     destination_file = config.pop('destination')
@@ -335,8 +558,10 @@ def main():
     if os.path.exists(head_pos) is True:
         head_pos_file = mne.chpi.read_head_pos(head_pos)
         shutil.copy2(head_pos, 'out_dir_bad_channels/headshape.pos')  # required to run a pipeline on BL
+        report_head_pos_file = 'Headshape file provided'
     else:
         head_pos_file = None
+        report_head_pos_file = 'No headshape file provided'
 
     # Read events file 
     events_file = config.pop('events')
@@ -407,6 +632,7 @@ def main():
         del config['_app'], config['_tid'], config['_inputs'], config['_outputs'] 
     kwargs = config  
 
+
     # Apply find bad channels     
     raw_copy = raw.copy()
     raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
@@ -425,7 +651,8 @@ def main():
                                                                   f"before performing an another preprocessing step."})
 
     # Generate report
-    # _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file)
+    _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file, 
+                     report_cross_talk_file, report_calibration_file, report_head_pos_file, **kwargs)
 
     # Save the dict_json_product in a json file
     with open('product.json', 'w') as outfile:
