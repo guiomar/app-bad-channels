@@ -436,6 +436,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
 
 
     ## Values of the parameters of the App ## 
+    mne_version = mne.__version__
 
     # Put this info in html format # 
     html_text_parameters = f"""<html>
@@ -499,6 +500,9 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
             </tr>
             <tr>
                 <td>Empty-room projection vectors: {param_extended_proj}</td>
+            </tr>
+            <tr>
+                <td>MNE version used: {mne_version}</td>
             </tr>
         </table>
     </body>
