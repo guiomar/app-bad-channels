@@ -637,13 +637,39 @@ def main():
     kwargs = config  
 
 
+    ######### TEST MNE BIDS
+    from mne_bids import BIDSPath, write_raw_bids
+    from pathlib import Path
+
+    # Create BIDSPath
+    bids_path = BIDSPath(subject='test',
+                         session=None,
+                         task='test',
+                         run='01',
+                         acquisition=None,
+                         processing=None,
+                         recording=None,
+                         space=None,
+                         suffix=None,
+                         datatype='meg',
+                         root='bids')
+
+    # Write BIDS
+    write_raw_bids(raw, bids_path, overwrite=True)
+
+    # Extract channels.tsv from bids path
+    #channels_tsv = '/network/lustre/iss01/home/aurore.bussalb/Repositories/app-bad-channels/bids/sub-test/meg/sub-test_task-test_run-01_channels.tsv'
+    channels_tsv = '/bids/sub-test/meg/sub-test_task-test_run-01_channels.tsv'
+    shutil.copy2(channels_tsv, 'out_dir_bad_channels/channels.tsv')
+    
+
     # Apply find bad channels     
-    raw_copy = raw.copy()
-    raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
-                                                                                     calibration_file,
-                                                                                     head_pos_file, 
-                                                                                     **kwargs)
-    del raw_copy
+    # raw_copy = raw.copy()
+    # raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
+    #                                                                                  calibration_file,
+    #                                                                                  head_pos_file, 
+    #                                                                                  **kwargs)
+    # del raw_copy
 
     # Write a success message in product.json
     dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
@@ -655,8 +681,8 @@ def main():
                                                                   f"before performing an another preprocessing step."})
 
     # Generate report
-    _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file, 
-                     report_cross_talk_file, report_calibration_file, report_head_pos_file, **kwargs)
+    # _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file, 
+    #                  report_cross_talk_file, report_calibration_file, report_head_pos_file, **kwargs)
 
     # Save the dict_json_product in a json file
     with open('product.json', 'w') as outfile:
