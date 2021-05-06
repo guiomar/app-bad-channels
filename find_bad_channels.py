@@ -659,7 +659,7 @@ def main():
 
     # Extract channels.tsv from bids path
     #channels_tsv = '/network/lustre/iss01/home/aurore.bussalb/Repositories/app-bad-channels/bids/sub-test/meg/sub-test_task-test_run-01_channels.tsv'
-    channels_tsv = '/bids/sub-test/meg/sub-test_task-test_run-01_channels.tsv'
+    channels_tsv = 'bids/sub-test/meg/sub-test_task-test_run-01_channels.tsv'
     shutil.copy2(channels_tsv, 'out_dir_bad_channels/channels.tsv')
     
 
