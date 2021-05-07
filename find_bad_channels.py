@@ -10,6 +10,7 @@ import numpy as np
 import random
 import os
 import shutil
+from mne_bids import BIDSPath, write_raw_bids
 
 
 def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, param_h_freq, param_origin,  
@@ -115,9 +116,6 @@ def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, par
     # Add bad channels in raw.info
     bads = raw.info['bads'] + auto_noisy_chs + auto_flat_chs
     raw.info['bads'] = bads
-
-    # Save file
-    raw.save("out_dir_bad_channels/meg.fif", overwrite=True)
 
     return raw, auto_noisy_chs, auto_flat_chs, auto_scores
 
@@ -637,14 +635,21 @@ def main():
     kwargs = config  
 
 
-    ######### TEST MNE BIDS
-    from mne_bids import BIDSPath, write_raw_bids
-    from pathlib import Path
+    # Apply find bad channels     
+    # raw_copy = raw.copy()
+    # raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
+    #                                                                                  calibration_file,
+    #                                                                                  head_pos_file, 
+    #                                                                                  **kwargs)
+    # del raw_copy
 
-    # Create BIDSPath
-    bids_path = BIDSPath(subject='test',
+
+    ## Create channels.tsv ##
+
+    # Create a BIDSPath
+    bids_path = BIDSPath(subject='subject',
                          session=None,
-                         task='test',
+                         task='task',
                          run='01',
                          acquisition=None,
                          processing=None,
@@ -654,22 +659,38 @@ def main():
                          datatype='meg',
                          root='bids')
 
-    # Write BIDS
+    # Write BIDS to create channels.tsv BIDS compliant
     write_raw_bids(raw, bids_path, overwrite=True)
 
     # Extract channels.tsv from bids path
-    #channels_tsv = '/network/lustre/iss01/home/aurore.bussalb/Repositories/app-bad-channels/bids/sub-test/meg/sub-test_task-test_run-01_channels.tsv'
     channels_tsv = 'bids/sub-test/meg/sub-test_task-test_run-01_channels.tsv'
-    shutil.copy2(channels_tsv, 'out_dir_bad_channels/channels.tsv')
-    
 
-    # Apply find bad channels     
-    # raw_copy = raw.copy()
-    # raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
-    #                                                                                  calibration_file,
-    #                                                                                  head_pos_file, 
-    #                                                                                  **kwargs)
-    # del raw_copy
+    # Read it as a dataframe
+    df_channels = pd.read_csv(channels_tsv, sep='\t')
+
+    # Update df_channels with bad channels
+    # bads = raw_bad_channels.info['bads']
+    bads = ['MEG0113', 'MEG0112']
+    
+    # for bad in bads:
+    #     index_bad_channel = df_channels[df_channels['name'] == bad].index
+    #     df_channels.loc[index_bad_channel, 'status'] = 'bad'
+
+    # index_bad_channels = [df_channels[df_channels['name'] == bad].index for bads in bads]
+    # [df_channels.loc[index, 'status'] = 'bad' for index_bad_channels]
+    # print(df_channels)
+
+
+    # for bad in bads:
+    #     if df_channels[df_channels['name'] == 'MEG0113']:
+    #         print('test')
+    #         # df_channels[df_channels['name'] == bad]['status'] = 'bad'
+
+
+    shutil.copy2(channels_tsv, 'out_dir_bad_channels/channels.tsv')
+
+
+
 
     # Write a success message in product.json
     dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
