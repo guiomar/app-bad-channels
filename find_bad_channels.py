@@ -677,14 +677,9 @@ def main():
     #     df_channels.loc[index_bad_channel, 'status'] = 'bad'
 
     # index_bad_channels = [df_channels[df_channels['name'] == bad].index for bads in bads]
-    # [df_channels.loc[index, 'status'] = 'bad' for index_bad_channels]
-    # print(df_channels)
+    df_channels = [df_channels.loc[index, 'status'] = 'bad' for index in df_channels[df_channels['name'] == bad].index]
+    print(df_channels)
 
-
-    # for bad in bads:
-    #     if df_channels[df_channels['name'] == 'MEG0113']:
-    #         print('test')
-    #         # df_channels[df_channels['name'] == bad]['status'] = 'bad'
 
 
     shutil.copy2(channels_tsv, 'out_dir_bad_channels/channels.tsv')
