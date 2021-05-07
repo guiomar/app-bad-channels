@@ -636,12 +636,12 @@ def main():
 
 
     # Apply find bad channels     
-    # raw_copy = raw.copy()
-    # raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
-    #                                                                                  calibration_file,
-    #                                                                                  head_pos_file, 
-    #                                                                                  **kwargs)
-    # del raw_copy
+    raw_copy = raw.copy()
+    raw_bad_channels, auto_noisy_chs, auto_flat_chs, auto_scores = find_bad_channels(raw_copy, cross_talk_file,
+                                                                                     calibration_file,
+                                                                                     head_pos_file, 
+                                                                                     **kwargs)
+    del raw_copy
 
 
     ## Create channels.tsv ##
@@ -669,21 +669,14 @@ def main():
     df_channels = pd.read_csv(channels_tsv, sep='\t')
 
     # Update df_channels with bad channels
-    # bads = raw_bad_channels.info['bads']
-    bads = ['MEG0113', 'MEG0112']
-    
+    bads = raw_bad_channels.info['bads']  
     for bad in bads:
         index_bad_channel = df_channels[df_channels['name'] == bad].index
         df_channels.loc[index_bad_channel, 'status'] = 'bad'
 
-    print(df_channels)
-
-
-
-    shutil.copy2(channels_tsv, 'out_dir_bad_channels/channels.tsv')
-
-
-
+    # Save channels.tsv
+    df_channels.to_csv('channels.tsv', sep = '\t', index=False)
+    
 
     # Write a success message in product.json
     dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
