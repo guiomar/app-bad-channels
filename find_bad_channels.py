@@ -663,7 +663,7 @@ def main():
     write_raw_bids(raw, bids_path, overwrite=True)
 
     # Extract channels.tsv from bids path
-    channels_tsv = 'bids/sub-test/meg/sub-test_task-test_run-01_channels.tsv'
+    channels_tsv = 'bids/sub-subject/meg/sub-subject_task-task_run-01_channels.tsv'
 
     # Read it as a dataframe
     df_channels = pd.read_csv(channels_tsv, sep='\t')
@@ -676,7 +676,7 @@ def main():
 
     # Save channels.tsv
     df_channels.to_csv('channels.tsv', sep = '\t', index=False)
-    
+
 
     # Write a success message in product.json
     dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
