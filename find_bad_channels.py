@@ -675,7 +675,7 @@ def main():
         df_channels.loc[index_bad_channel, 'status'] = 'bad'
 
     # Save channels.tsv
-    df_channels.to_csv('channels.tsv', sep = '\t', index=False)
+    df_channels.to_csv('out_dir_bad_channels/channels.tsv', sep = '\t', index=False)
 
 
     # Write a success message in product.json
