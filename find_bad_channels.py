@@ -672,12 +672,10 @@ def main():
     # bads = raw_bad_channels.info['bads']
     bads = ['MEG0113', 'MEG0112']
     
-    # for bad in bads:
-    #     index_bad_channel = df_channels[df_channels['name'] == bad].index
-    #     df_channels.loc[index_bad_channel, 'status'] = 'bad'
+    for bad in bads:
+        index_bad_channel = df_channels[df_channels['name'] == bad].index
+        df_channels.loc[index_bad_channel, 'status'] = 'bad'
 
-    # index_bad_channels = [df_channels[df_channels['name'] == bad].index for bads in bads]
-    df_channels = [df_channels.loc[index, 'status'] = 'bad' for index in df_channels[df_channels['name'] == bad].index]
     print(df_channels)
 
 
