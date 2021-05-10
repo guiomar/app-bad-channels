@@ -534,44 +534,81 @@ def main():
 
     # Read the crosstalk file
     cross_talk_file = config.pop('crosstalk')
-    if os.path.exists(cross_talk_file) is False:
-        cross_talk_file = None
-        report_cross_talk_file = 'No cross-talk file provided'
+    if cross_talk_file is not None:
+        if os.path.exists(cross_talk_file) is False:
+            cross_talk_file = None
+            report_cross_talk_file = 'No cross-talk file provided'
+        else:
+            shutil.copy2(cross_talk_file, 'out_dir_bad_channels/crosstalk_meg.fif')  # required to run a pipeline on BL
+            report_cross_talk_file = 'Cross-talk file provided'
     else:
-        shutil.copy2(cross_talk_file, 'out_dir_bad_channels/crosstalk_meg.fif')  # required to run a pipeline on BL
-        report_cross_talk_file = 'Cross-talk file provided'
+        report_cross_talk_file = 'No cross-talk file provided'
 
     # Read the calibration file
     calibration_file = config.pop('calibration')
-    if os.path.exists(calibration_file) is False:
-        calibration_file = None
-        report_calibration_file = 'No calibration file provided'
+    if calibration_file is not None:
+        if os.path.exists(calibration_file) is False:
+            calibration_file = None
+            report_calibration_file = 'No calibration file provided'
+        else:
+            shutil.copy2(calibration_file, 'out_dir_bad_channels/calibration_meg.dat')  # required to run a pipeline on BL
+            report_calibration_file = 'Calibration file provided'
     else:
-        shutil.copy2(calibration_file, 'out_dir_bad_channels/calibration_meg.dat')  # required to run a pipeline on BL
-        report_calibration_file = 'Calibration file provided'
+        report_calibration_file = 'No calibration file provided'
 
     # Read the destination file
     destination_file = config.pop('destination')
-    if os.path.exists(destination_file) is True:
-        shutil.copy2(destination_file, 'out_dir_bad_channels/destination.fif')  # required to run a pipeline on BL
+    if destination_file is not None:
+        if os.path.exists(destination_file) is True:
+            shutil.copy2(destination_file, 'out_dir_bad_channels/destination.fif')  # required to run a pipeline on BL
 
     # Read head pos file
     head_pos = config.pop('headshape')
-    if os.path.exists(head_pos) is True:
-        head_pos_file = mne.chpi.read_head_pos(head_pos)
-        shutil.copy2(head_pos, 'out_dir_bad_channels/headshape.pos')  # required to run a pipeline on BL
-        report_head_pos_file = 'Headshape file provided'
+    if head_pos is not None:
+        if os.path.exists(head_pos) is False:
+            head_pos_file = None
+            report_head_pos_file = 'No headshape file provided'
+        else:
+            head_pos_file = mne.chpi.read_head_pos(head_pos)
+            shutil.copy2(head_pos_file, 'out_dir_bad_channels/headshape.pos') # required to run a pipeline on BL 
+            report_head_pos_file = 'Headshape file provided'
     else:
-        head_pos_file = None
+        head_pos_file = head_pos
         report_head_pos_file = 'No headshape file provided'
 
     # Read events file 
     events_file = config.pop('events')
-    if os.path.exists(events_file) is True:
-        shutil.copy2(events_file, 'out_dir_bad_channels/events.tsv')  # required to run a pipeline on BL
+    if events_file is not None:
+        if os.path.exists(events_file) is True:
+            shutil.copy2(events_file, 'out_dir_bad_channels/events.tsv')  # required to run a pipeline on BL
+
+    # Channels.tsv
+    channels_file = config.pop('channels')
+    if channels_file is not None or os.path.exists(channels_file) is True:
+        shutil.copy2(channels_file, 'out_dir_bad_channels/channels.tsv')  # required to run a pipeline on BL
+        user_warning_message_channels = f'The channels file provided must be ' \
+                                        f'BIDS compliant and the column "status" must be present.'
+        warnings.warn(user_warning_message_channels)
+    elif channels_file is None or os.path.exists(channels_file) is False:
+        # Create a BIDSPath
+        bids_path = BIDSPath(subject='subject',
+                             session=None,
+                             task='task',
+                             run='01',
+                             acquisition=None,
+                             processing=None,
+                             recording=None,
+                             space=None,
+                             suffix=None,
+                             datatype='meg',
+                             root='bids')
+        # Write BIDS to create channels.tsv BIDS compliant
+        write_raw_bids(raw, bids_path, overwrite=True)
+        # Extract channels.tsv from bids path
+        channels_file = 'bids/sub-subject/meg/sub-subject_task-task_run-01_channels.tsv'
 
 
-    # Convert all "" into None when the App runs on BL
+    # Convert all "" into None when the App runs on BL #
     tmp = dict((k, None) for k, v in config.items() if v == "")
     config.update(tmp)
 
@@ -644,29 +681,10 @@ def main():
     del raw_copy
 
 
-    ## Create channels.tsv ##
-
-    # Create a BIDSPath
-    bids_path = BIDSPath(subject='subject',
-                         session=None,
-                         task='task',
-                         run='01',
-                         acquisition=None,
-                         processing=None,
-                         recording=None,
-                         space=None,
-                         suffix=None,
-                         datatype='meg',
-                         root='bids')
-
-    # Write BIDS to create channels.tsv BIDS compliant
-    write_raw_bids(raw, bids_path, overwrite=True)
-
-    # Extract channels.tsv from bids path
-    channels_tsv = 'bids/sub-subject/meg/sub-subject_task-task_run-01_channels.tsv'
+    ## Update channels.tsv with bad channels ##
 
     # Read it as a dataframe
-    df_channels = pd.read_csv(channels_tsv, sep='\t')
+    df_channels = pd.read_csv(channels_file, sep='\t')
 
     # Update df_channels with bad channels
     bads = raw_bad_channels.info['bads']  
@@ -679,7 +697,7 @@ def main():
 
 
     # Write a success message in product.json
-    dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected.'})
+    dict_json_product['brainlife'].append({'type': 'success', 'msg': 'Bad channels were successfully detected and written in channels.tsv.'})
 
     # Write an info message in product.json
     dict_json_product['brainlife'].append({'type': 'info', 'msg': f'This algorithm is not fully reliable. '
@@ -688,8 +706,8 @@ def main():
                                                                   f"before performing an another preprocessing step."})
 
     # Generate report
-    # _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file, 
-    #                  report_cross_talk_file, report_calibration_file, report_head_pos_file, **kwargs)
+    _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file, 
+                     report_cross_talk_file, report_calibration_file, report_head_pos_file, **kwargs)
 
     # Save the dict_json_product in a json file
     with open('product.json', 'w') as outfile:
