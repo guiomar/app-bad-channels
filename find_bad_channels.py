@@ -584,12 +584,7 @@ def main():
 
     # Channels.tsv
     channels_file = config.pop('channels')
-    if channels_file is not None or os.path.exists(channels_file) is True:
-        shutil.copy2(channels_file, 'out_dir_bad_channels/channels.tsv')  # required to run a pipeline on BL
-        user_warning_message_channels = f'The channels file provided must be ' \
-                                        f'BIDS compliant and the column "status" must be present.'
-        warnings.warn(user_warning_message_channels)
-    elif channels_file is None or os.path.exists(channels_file) is False:
+    if channels_file is None or os.path.exists(channels_file) is False:
         # Create a BIDSPath
         bids_path = BIDSPath(subject='subject',
                              session=None,
@@ -606,6 +601,11 @@ def main():
         write_raw_bids(raw, bids_path, overwrite=True)
         # Extract channels.tsv from bids path
         channels_file = 'bids/sub-subject/meg/sub-subject_task-task_run-01_channels.tsv'
+    elif channels_file is not None or os.path.exists(channels_file) is True:
+        shutil.copy2(channels_file, 'out_dir_bad_channels/channels.tsv')  # required to run a pipeline on BL
+        user_warning_message_channels = f'The channels file provided must be ' \
+                                        f'BIDS compliant and the column "status" must be present.'
+        warnings.warn(user_warning_message_channels)
 
 
     # Convert all "" into None when the App runs on BL #
