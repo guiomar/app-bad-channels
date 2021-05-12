@@ -593,6 +593,12 @@ def main():
         warnings.warn(user_warning_message_channels)
         dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_channels})
 
+    # Read the destination file
+    destination_file = config.pop('destination')
+    if destination_file is not None:
+        if os.path.exists(destination_file) is True:
+            shutil.copy2(destination_file, 'out_dir_bad_channels/destination.fif')  # required to run a pipeline on BL
+
 
     # Convert all "" into None when the App runs on BL #
     tmp = dict((k, None) for k, v in config.items() if v == "")
