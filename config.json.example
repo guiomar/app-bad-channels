@@ -4,6 +4,7 @@
     "crosstalk": null,
     "headshape": null,
     "channels": null,
+    "destination": null,
     "param_origin": "auto",
     "param_return_scores": true,
     "param_limit": 7,
