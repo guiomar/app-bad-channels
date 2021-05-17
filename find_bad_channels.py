@@ -526,7 +526,7 @@ def main():
         config = json.load(config_json)
 
     # Read the raw file
-    data_file = (config.pop('fif'))
+    data_file = config.pop('fif')
     raw = mne.io.read_raw_fif(data_file, allow_maxshield=True)
 
     
