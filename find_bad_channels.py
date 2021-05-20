@@ -569,6 +569,7 @@ def main():
             report_head_pos_file = 'No headshape file provided'
     else:
         report_head_pos_file = 'No headshape file provided'
+        head_pos_file = None
 
     # Channels.tsv
     channels_file = config.pop('channels')
