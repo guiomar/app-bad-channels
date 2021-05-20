@@ -564,6 +564,7 @@ def main():
             else:
                 head_pos_file = mne.chpi.read_head_pos(head_pos)
                 report_head_pos_file = 'Headshape file provided'
+                shutil.copy2(head_pos, 'out_dir_bad_channels/headshape.pos')
         else:
             head_pos_file = head_pos
             report_head_pos_file = 'No headshape file provided'
