@@ -532,6 +532,8 @@ def main():
     
     ## Read the optional files ##
 
+    # From fif datatype #
+
     # Read the crosstalk file
     cross_talk_file = config.pop('crosstalk')
     if cross_talk_file is not None:
@@ -553,24 +555,6 @@ def main():
             report_calibration_file = 'Calibration file provided'
     else:
         report_calibration_file = 'No calibration file provided'
-
-    # Read head pos file
-    if 'headshape' in config.keys():
-        head_pos = config.pop('headshape')
-        if head_pos is not None:
-            if os.path.exists(head_pos) is False:
-                head_pos_file = None
-                report_head_pos_file = 'No headshape file provided'
-            else:
-                head_pos_file = mne.chpi.read_head_pos(head_pos)
-                report_head_pos_file = 'Headshape file provided'
-                shutil.copy2(head_pos, 'out_dir_bad_channels/headshape.pos')
-        else:
-            head_pos_file = head_pos
-            report_head_pos_file = 'No headshape file provided'
-    else:
-        report_head_pos_file = 'No headshape file provided'
-        head_pos_file = None
 
     # Channels.tsv
     channels_file = config.pop('channels')
@@ -598,12 +582,45 @@ def main():
         warnings.warn(user_warning_message_channels)
         dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_channels})
 
+    # Read head pos file
+    head_pos = config.pop('headshape')
+    if head_pos is not None:
+        if os.path.exists(head_pos) is False:
+            head_pos_file = None
+            report_head_pos_file = 'No headshape file provided'
+        else:
+            head_pos_file = mne.chpi.read_head_pos(head_pos)
+            report_head_pos_file = 'Headshape file provided'
+            shutil.copy2(head_pos, 'out_dir_bad_channels/headshape.pos')
+    else:
+        head_pos_file = head_pos
+        report_head_pos_file = 'No headshape file provided'
+
+
+    # From fif override datatype #
+
     # Read the destination file
-    if 'destination' in config.keys():
+    if 'destination' in config.keys(): 
         destination_file = config.pop('destination')
         if destination_file is not None:
             if os.path.exists(destination_file) is True:
                 shutil.copy2(destination_file, 'out_dir_bad_channels/destination.fif')  # required to run a pipeline on BL
+
+    # Read head pos file
+    if 'headshape_override' in config.keys():
+        head_pos_override = config.pop('headshape_override')
+        if head_pos_override is not None:
+            if os.path.exists(head_pos_override) is False:
+                head_pos_override_file = None
+            else:
+                if report_head_pos_file == 'Headshape file provided':
+                    user_warning_message_headshape = f"You provided two headshape.pos files: by default, the file computed by " \
+                                                     f"the App will be used."
+                    warnings.warn(user_warning_message_headshape)
+                    dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_headshape})
+                head_pos_file = mne.chpi.read_head_pos(head_pos_override)
+                report_head_pos_file = 'Headshape file provided'
+                shutil.copy2(head_pos_override, 'out_dir_bad_channels/headshape.pos')
 
 
     # Convert all "" into None when the App runs on BL #
