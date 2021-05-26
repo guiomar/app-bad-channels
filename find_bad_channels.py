@@ -609,18 +609,18 @@ def main():
     # Read head pos file
     if 'headshape_override' in config.keys():
         head_pos_override = config.pop('headshape_override')
-        if head_pos_override is not None:
-            if os.path.exists(head_pos_override) is False:
-                head_pos_override_file = None
-            else:
-                if report_head_pos_file == 'Headshape file provided':
-                    user_warning_message_headshape = f"You provided two headshape.pos files: by default, the file computed by " \
-                                                     f"the App will be used."
-                    warnings.warn(user_warning_message_headshape)
-                    dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_headshape})
-                head_pos_file = mne.chpi.read_head_pos(head_pos_override)
-                report_head_pos_file = 'Headshape file provided'
-                shutil.copy2(head_pos_override, 'out_dir_bad_channels/headshape.pos')
+        # No need to test if headshape_override is None, this key is only present when the app runs on BL
+        if os.path.exists(head_pos_override) is False:
+            head_pos_override_file = None
+        else:
+            if report_head_pos_file == 'Headshape file provided':
+                user_warning_message_headshape = f"You provided two headshape.pos files: by default, the file computed by " \
+                                                 f"the App will be used."
+                warnings.warn(user_warning_message_headshape)
+                dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_headshape})
+            head_pos_file = mne.chpi.read_head_pos(head_pos_override)
+            report_head_pos_file = 'Headshape file provided'
+            shutil.copy2(head_pos_override, 'out_dir_bad_channels/headshape.pos')
 
 
     # Convert all "" into None when the App runs on BL #
