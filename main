@@ -20,3 +20,6 @@ mkdir -p out_dir_report
 
 # Run the actual python code
 singularity exec docker://brainlife/mne:0.23dev python3 find_bad_channels.py
+
+# Delete the bids folder
+rm -r bids
