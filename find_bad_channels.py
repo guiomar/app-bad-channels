@@ -466,7 +466,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
             <tr>
                 <td>Duration: {param_duration}s</td>
             </tr>
-            <tr>
+            <tr>out_dir_name
                 <td>Min count: {param_min_count} times</td>
             </tr>
             <tr>
