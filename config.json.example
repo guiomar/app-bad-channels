@@ -1,9 +1,9 @@
 {
-    "fif": "/network/lustre/iss01/home/aurore.bussalb/Downloads/meg.fif",
-    "calibration": null,
+    "fif": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/rest1-raw.fif",
+    "calibration": "/network/lustre/iss01/home/aurore.bussalb/Repositories/data_test_BL/sss_cal.dat",
     "crosstalk": null,
     "headshape": null,
-    "channels": null,
+    "channels": "/network/lustre/iss01/home/aurore.bussalb/Repositories/app-bad-channels/channels.tsv",
     "destination": null,
     "param_origin": "auto",
     "param_return_scores": true,
