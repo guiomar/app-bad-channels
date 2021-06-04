@@ -660,7 +660,7 @@ def main():
     # Get messages to add to the html report
     report_calibration_file, report_cross_talk_file, report_head_pos_file, report_destination = helper.message_optional_files_in_reports(calibration_file, cross_talk_file, head_pos_file, destination)
 
-    ## Generate html report ##
+    # Generate html report 
     _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file, 
                      report_cross_talk_file, report_calibration_file, report_head_pos_file, **kwargs)
 
