@@ -530,105 +530,10 @@ def main():
     data_file = config.pop('fif')
     raw = mne.io.read_raw_fif(data_file, allow_maxshield=True)
 
-    
-    # ## Read the optional files ##
-
-    # # From fif datatype #
-
-    # # Read the crosstalk file
-    # cross_talk_file = config.pop('crosstalk')
-    # if cross_talk_file is not None:
-    #     if os.path.exists(cross_talk_file) is False:
-    #         cross_talk_file = None
-    #         report_cross_talk_file = 'No cross-talk file provided'
-    #     else:
-    #         report_cross_talk_file = 'Cross-talk file provided'
-    # else:
-    #     report_cross_talk_file = 'No cross-talk file provided'
-
-    # # Read the calibration file
-    # calibration_file = config.pop('calibration')
-    # if calibration_file is not None:
-    #     if os.path.exists(calibration_file) is False:
-    #         calibration_file = None
-    #         report_calibration_file = 'No calibration file provided'
-    #     else:
-    #         report_calibration_file = 'Calibration file provided'
-    # else:
-    #     report_calibration_file = 'No calibration file provided'
-
-    # # Channels.tsv
-    # channels_file = config.pop('channels')
-    # if channels_file is None or os.path.exists(channels_file) is False:
-    #     # Create a BIDSPath
-    #     bids_path = BIDSPath(subject='subject',
-    #                          session=None,
-    #                          task='task',
-    #                          run='01',
-    #                          acquisition=None,
-    #                          processing=None,
-    #                          recording=None,
-    #                          space=None,
-    #                          suffix=None,
-    #                          datatype='meg',
-    #                          root='bids')
-    #     # Write BIDS to create channels.tsv BIDS compliant
-    #     write_raw_bids(raw, bids_path, overwrite=True)
-    #     # Extract channels.tsv from bids path
-    #     channels_file = 'bids/sub-subject/meg/sub-subject_task-task_run-01_channels.tsv'
-    # elif channels_file is not None or os.path.exists(channels_file) is True:
-    #     user_warning_message_channels = f'The channels file provided must be ' \
-    #                                     f'BIDS compliant and the column "status" must be present. ' \
-    #                                     f'This App will update this file with the bad channels.'
-    #     warnings.warn(user_warning_message_channels)
-    #     dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_channels})
-
-    # # Read head pos file
-    # head_pos = config.pop('headshape')
-    # if head_pos is not None:
-    #     if os.path.exists(head_pos) is False:
-    #         head_pos_file = None
-    #         report_head_pos_file = 'No headshape file provided'
-    #     else:
-    #         head_pos_file = mne.chpi.read_head_pos(head_pos)
-    #         report_head_pos_file = 'Headshape file provided'
-    #         shutil.copy2(head_pos, 'out_dir_bad_channels/headshape.pos')
-    # else:
-    #     head_pos_file = head_pos
-    #     report_head_pos_file = 'No headshape file provided'
-
-
-    # # From fif override datatype #
-
-    # # Read the destination file
-    # if 'destination' in config.keys(): 
-    #     destination_file = config.pop('destination')
-    #     if destination_file is not None:
-    #         if os.path.exists(destination_file) is True:
-    #             shutil.copy2(destination_file, 'out_dir_bad_channels/destination.fif')  # required to run a pipeline on BL
-
-    # # Read head pos file
-    # if 'headshape_override' in config.keys():
-    #     head_pos_override = config.pop('headshape_override')
-    #     # No need to test if headshape_override is None, this key is only present when the app runs on BL
-    #     if os.path.exists(head_pos_override) is False:
-    #         head_pos_override_file = None
-    #     else:
-    #         if report_head_pos_file == 'Headshape file provided':
-    #             user_warning_message_headshape = f"You provided two headshape.pos files: by default, the file computed by " \
-    #                                              f"the App will be used."
-    #             warnings.warn(user_warning_message_headshape)
-    #             dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_headshape})
-    #         head_pos_file = mne.chpi.read_head_pos(head_pos_override)
-    #         report_head_pos_file = 'Headshape file provided'
-    #         shutil.copy2(head_pos_override, 'out_dir_bad_channels/headshape.pos')
-
+    # Read and save optional files
     config, cross_talk_file, calibration_file, events_file, head_pos_file, channels_file, destination = helper.read_optional_files(config, 'out_dir_bad_channels')
 
-    # Convert all "" into None when the App runs on BL #
-    # tmp = dict((k, None) for k, v in config.items() if v == "")
-    # config.update(tmp)
-
+    # Convert empty strings values to None
     config = helper.convert_parameters_to_None(config)
 
     # Channels.tsv must be BIDS compliant
@@ -637,12 +542,11 @@ def main():
                                         f'BIDS compliant and the column "status" must be present. ' 
         warnings.warn(user_warning_message_channels)
         dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_channels})
-
+        # Udpate raw.info['bads'] with info contained in channels.tsv
         raw, user_warning_message_channels = helper.update_data_info_bads(raw, channels_file)
         if user_warning_message_channels is not None: 
             warnings.warn(user_warning_message_channels)
             dict_json_product['brainlife'].append({'type': 'warning', 'msg': user_warning_message_channels})
-
     else:
         # Create a BIDSPath
         bids_path = BIDSPath(subject='subject',
@@ -660,9 +564,6 @@ def main():
         write_raw_bids(raw, bids_path, overwrite=True)
         # Extract channels.tsv from bids path
         channels_file = 'bids/sub-subject/meg/sub-subject_task-task_run-01_channels.tsv'
-
-
-    report_calibration_file, report_cross_talk_file, report_head_pos_file, report_destination = helper.message_optional_files_in_reports(calibration_file, cross_talk_file, head_pos_file, destination)
 
     # Check if param_extended_proj parameter is an empty list string
     if config['param_extended_proj'] == '[]':
@@ -715,16 +616,9 @@ def main():
         skip_by_an = list(map(str, skip_by_an.split(', ')))         
     config['param_skip_by_annotation'] = skip_by_an 
 
-    
-    ## Define kwargs ##
 
     # Delete keys values in config.json when this app is executed on Brainlife
-    # if '_app' and '_tid' and '_inputs' and '_outputs' in config.keys():
-    #     del config['_app'], config['_tid'], config['_inputs'], config['_outputs'] 
-
-    config = helper.define_kwargs(config)
-    kwargs = config  
-
+    kwargs = helper.define_kwargs(config)
 
     # Apply find bad channels     
     raw_copy = raw.copy()
@@ -732,6 +626,7 @@ def main():
                                                                                      calibration_file,
                                                                                      head_pos_file, 
                                                                                      **kwargs)
+    # Delete the copy 
     del raw_copy
 
 
@@ -759,10 +654,17 @@ def main():
                                                                   f"signals visually "
                                                                   f"before performing an another preprocessing step."})
 
-    # Generate report
+    
+    ## Generate html report ##
+
+    # Get messages to add to the html report
+    report_calibration_file, report_cross_talk_file, report_head_pos_file, report_destination = helper.message_optional_files_in_reports(calibration_file, cross_talk_file, head_pos_file, destination)
+
+    ## Generate html report ##
     _generate_report(raw, raw_bad_channels, auto_scores, auto_noisy_chs, auto_flat_chs, data_file, 
                      report_cross_talk_file, report_calibration_file, report_head_pos_file, **kwargs)
 
+    
     # Save the dict_json_product in a json file
     with open('product.json', 'w') as outfile:
         json.dump(dict_json_product, outfile)

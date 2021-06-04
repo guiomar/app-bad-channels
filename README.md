@@ -35,7 +35,7 @@ Default is `["edge, "bad acq skip"]`.
 This list along with the default values correspond to the parameters of MNE Python version 0.22.0 find_bad_channels_maxwell function (except for return_scores).
 
 5) Ouput files are:
-    * a `.fif` MEG file with bad channels marked as "bad" in its `mne.info`,
+    * a BIDS compliant `.tsv` channels file with channels info,
     * an `.html` report containing figures.
 
 ### Authors
@@ -84,5 +84,4 @@ This App is still private on Brainlife.io.
 
 ## Output
 
-The output file is a MEG file in `.fif` format with its channels detected as "bad" by this App are marked 
-as "bad" in `mne.info` and `html` report.
+The output file is a channels.tsv BIDS compliant with channels marked bad and an `html` report.
