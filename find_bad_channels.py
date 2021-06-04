@@ -623,7 +623,7 @@ def main():
     #         report_head_pos_file = 'Headshape file provided'
     #         shutil.copy2(head_pos_override, 'out_dir_bad_channels/headshape.pos')
 
-    onfig, cross_talk_file, calibration_file, events_file, head_pos_file, channels_file, destination = helper.read_optional_files(config, 'out_dir_bad_channels')
+    config, cross_talk_file, calibration_file, events_file, head_pos_file, channels_file, destination = helper.read_optional_files(config, 'out_dir_bad_channels')
 
     # Convert all "" into None when the App runs on BL #
     # tmp = dict((k, None) for k, v in config.items() if v == "")
