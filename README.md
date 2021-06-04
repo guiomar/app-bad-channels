@@ -12,7 +12,8 @@ Repository of a Brainlife App that detects bad channels in MEG recordings using 
     * an optional crosstalk compensation file in `.fif`,
     * an optional head position file in `.pos`,
     * an optional destination file in `.fif`,
-    * an optional event file in `.tsv`.
+    * an optional events file in `.tsv`.
+    * an optional channels file in `.tsv`.
 4) Input parameters are:
     * `param_duration`: `float`, duration of the segments into which to slice the data for processing, in seconds. Default is 5.
     * `param_min_count`: `int`, minimum number of times a channel must show up as bad in a chunk. Default is 5.
