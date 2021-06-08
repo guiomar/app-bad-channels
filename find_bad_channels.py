@@ -279,7 +279,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
     raw_grad_after_preprocessing = raw_select_grad_after_preprocessing.pick(picks='grad')
 
     # Plot PSD for grad + flat grad
-    fig_raw_psd_all_before_grad = mne.viz.plot_raw_psd(raw_grad_before_preprocessing, picks=grad_channels)
+    fig_raw_psd_all_before_grad = mne.viz.plot_raw_psd(raw_grad_before_preprocessing, picks=grad_channels, show=False)
 
     # Add figures to report
     captions_fig_raw_psd_all_before_grad = f'Power spectral density of MEG signals including the automated ' \
@@ -308,7 +308,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
     raw_grad_after_preprocessing = raw_select_grad_after_preprocessing.pick(picks='grad')
 
     # Plot PSD for grad + flat grad
-    fig_raw_psd_all_before_grad = mne.viz.plot_raw_psd(raw_grad_before_preprocessing, picks=grad_channels)
+    fig_raw_psd_all_before_grad = mne.viz.plot_raw_psd(raw_grad_before_preprocessing, picks=grad_channels, show=False)
 
     # Add figures to report
     captions_fig_raw_psd_all_before_grad = f'Power spectral density of MEG signals including the automated ' \
@@ -319,7 +319,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
                                section='Power Spectral Density for Gradiometers')
 
     # Plot PSD of grad excluding flat grads # 
-    fig_raw_psd_all_after_grad = mne.viz.plot_raw_psd(raw_grad_after_preprocessing, picks='meg')
+    fig_raw_psd_all_after_grad = mne.viz.plot_raw_psd(raw_grad_after_preprocessing, picks='meg', show=False)
     captions_fig_raw_psd_all_after_grad = f'Power spectral density of MEG signals without the automated ' \
                                           f'detected noisy and flat channels (Gradiometers)'
     report.add_figs_to_section(figs=fig_raw_psd_all_after_grad,
@@ -340,7 +340,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
     raw_mag_after_preprocessing = raw_select_mag_after_preprocessing.pick(picks='mag')
 
     # Plot PSD for mag + flat grad
-    fig_raw_psd_all_before_mag = mne.viz.plot_raw_psd(raw_mag_before_preprocessing, picks=mag_channels)
+    fig_raw_psd_all_before_mag = mne.viz.plot_raw_psd(raw_mag_before_preprocessing, picks=mag_channels, show=False)
 
     # Add figures to report
     captions_fig_raw_psd_all_before_mag = f'Power spectral density of MEG signals including the automated ' \
@@ -364,7 +364,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
     raw_mag_after_preprocessing = raw_select_mag_after_preprocessing.pick(picks='mag')
 
     # Plot PSD for mag + noisy mag
-    fig_raw_psd_all_before_mag = mne.viz.plot_raw_psd(raw_mag_before_preprocessing, picks=mag_channels)
+    fig_raw_psd_all_before_mag = mne.viz.plot_raw_psd(raw_mag_before_preprocessing, picks=mag_channels, show=False)
 
     # Add figures to report
     captions_fig_raw_psd_all_before_grad = f'Power spectral density of MEG signals including the automated ' \
@@ -377,7 +377,7 @@ def _generate_report(raw_before_preprocessing, raw_after_preprocessing, auto_sco
 
 
     # Plot PSD of mag excluding noisy mag # 
-    fig_raw_psd_all_after_mag = mne.viz.plot_raw_psd(raw_mag_after_preprocessing, picks='meg')
+    fig_raw_psd_all_after_mag = mne.viz.plot_raw_psd(raw_mag_after_preprocessing, picks='meg', show=False)
     captions_fig_raw_psd_all_after_mag = f'Power spectral density of MEGsignals without the automated ' \
                                           f'detected noisy and flat channels (Magnetometers)'
 
