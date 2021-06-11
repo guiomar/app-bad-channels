@@ -11,7 +11,7 @@ import random
 import os
 import shutil
 from mne_bids import BIDSPath, write_raw_bids
-import helper
+from brainlife_apps_helper import helper
 
 
 def find_bad_channels(raw, cross_talk_file, calibration_file, head_pos_file, param_h_freq, param_origin,  
