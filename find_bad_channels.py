@@ -9,7 +9,6 @@ import seaborn as sns
 import numpy as np
 import random
 import os
-import shutil
 from mne_bids import BIDSPath, write_raw_bids
 from brainlife_apps_helper import helper
 
@@ -564,6 +563,13 @@ def main():
         write_raw_bids(raw, bids_path, overwrite=True)
         # Extract channels.tsv from bids path
         channels_file = 'bids/sub-subject/meg/sub-subject_task-task_run-01_channels.tsv'
+
+    # Extract or write meg.json
+    meg_json_file = 'bids/sub-subject/meg/sub-subject_task-task_run-01_meg.tsv'
+    if os.path.exists(meg_json_file):
+            with open(meg_json_file) as meg_json
+        meg_json = json.load(meg_json_file)
+
 
     # Check if param_extended_proj parameter is an empty list string
     if config['param_extended_proj'] == '[]':
