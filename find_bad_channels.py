@@ -642,6 +642,7 @@ def main():
         df_channels.loc[index_bad_channel, 'status'] = 'bad'
 
     # Save channels.tsv
+    print(df_channels)
     df_channels.to_csv('out_dir_bad_channels/channels.tsv', sep = '\t', index=False)
 
 
