@@ -643,7 +643,8 @@ def main():
 
     # Save channels.tsv
     print(df_channels)
-    !ls -l 'out_dir_bad_channels/channels.tsv'
+    permisions = os.stat('out_dir_bad_channels/channels.tsv')
+    print(permisions)
 
     df_channels.to_csv('out_dir_bad_channels/channels.tsv', sep = '\t', index=False)
 
