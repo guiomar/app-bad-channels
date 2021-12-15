@@ -642,13 +642,17 @@ def main():
         df_channels.loc[index_bad_channel, 'status'] = 'bad'
 
     # Save channels.tsv
-    print(df_channels)
+   
+   # Delete any pre-existing channels.tsv file, to avoid wrtting permission error 
+   # (Guio: I don't know when this is created but doesn't allow to be overwritten and also I couldn't manage to change permissions)
+   #os.chmod('out_dir_bad_channels/channels.tsv', 775) # chmod u=rwx,g=rwx,o=rx  | chmod 775 |
     if os.path.exists('out_dir_bad_channels/channels.tsv'):
         os.remove('out_dir_bad_channels/channels.tsv')
+        print("Previous channels.tsv file deleted") 
     else:
         print("No previous channels.tsv file") 
-    #os.chmod('out_dir_bad_channels/channels.tsv', 775) # chmod u=rwx,g=rwx,o=rx  | chmod 775 |
-    print('holahola')
+
+
     df_channels.to_csv('out_dir_bad_channels/channels.tsv', sep = '\t', index=False)
 
 
