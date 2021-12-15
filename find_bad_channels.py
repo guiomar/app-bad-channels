@@ -643,6 +643,7 @@ def main():
 
     # Save channels.tsv
     print(df_channels)
+    os.chmod('out_dir_bad_channels/channels.tsv', 775) # chmod u=rwx,g=rwx,o=rx  | chmod 775 |
     df_channels.to_csv('out_dir_bad_channels/channels.tsv', sep = '\t', index=False)
 
 
