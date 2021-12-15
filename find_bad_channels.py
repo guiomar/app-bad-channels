@@ -643,7 +643,12 @@ def main():
 
     # Save channels.tsv
     print(df_channels)
-    os.chmod('out_dir_bad_channels/channels.tsv', 775) # chmod u=rwx,g=rwx,o=rx  | chmod 775 |
+    if os.path.exists('out_dir_bad_channels/channels.tsv'):
+        os.remove('out_dir_bad_channels/channels.tsv')
+    else:
+        print("No previous channels.tsv file") 
+    #os.chmod('out_dir_bad_channels/channels.tsv', 775) # chmod u=rwx,g=rwx,o=rx  | chmod 775 |
+    print('holahola')
     df_channels.to_csv('out_dir_bad_channels/channels.tsv', sep = '\t', index=False)
 
 
